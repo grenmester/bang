@@ -1,3 +1,10 @@
+local host, port = "localhost", 5000
+local socket = require("socket")
+local tcp = assert(socket.tcp())
+
+tcp:settimeout(0.01)
+tcp:connect(host, port)
+
 local bump = require 'lib.bump'
 
 local world = bump.newWorld(32)
@@ -179,6 +186,8 @@ function love.load()
 end
 
 function love.update(dt)
+    local answer = tcp:receive()
+    print(answer)
     updatePlayer(dt)
     if player.bullet.exists then
         updateBullet(dt)

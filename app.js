@@ -2,8 +2,10 @@
 let express = require('express');
 let path = require('path');
 let config = require('./config/config.js');
-
+let net = require('net');
 let app = express();
+let loveSocket;
+let count = 0;
 
 //In this case we're running the app from Users/Documents/Programming/Node Starter, so that's the value of __dirname
 //Now we tell the app to append /views to that path
@@ -28,8 +30,26 @@ require('./routes/routes.js')(express, app);
 
 //node is a server side app, so we need to now create a server using our app
 let server = require('http').createServer(app);
-var io = require('socket.io')(server);
+let loveServer = net.createServer(function(socket) {
+    loveSocket = socket;
+    loveSocket.on("connect", function () {
+        console.log("Connected to LOVE2D");
+    });
 
+    loveSocket.on("data", function (d) {
+        if(d == "exit\0") {
+            console.log("exit");
+            loveSocket.end();
+            server.close();
+        }
+        else {
+            console.log("LOVE2D: " + d);
+        }
+    });
+});
+
+
+let io = require('socket.io')(server);
 
 //set our app listen on the port we specify
 server.listen(app.get('port'), function(){
@@ -37,12 +57,13 @@ server.listen(app.get('port'), function(){
     console.log('Project XXX working on port: ' + app.get('port'));
 })
 
+loveServer.listen(5000, 'localhost')
+
 //bang, zap, boom, jump
 io.on('connection', function (socket) {
-  console.log('socket connected')
+  console.log('client socket connected')
   socket.on('sent word', function(data){
     console.log(data)
   })
 });
-
 
