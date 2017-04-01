@@ -14,18 +14,52 @@ local player = {
     h = 32,
     dx = 0,
     dy = 0,
+    direction = 1,
     speed = 150,
     jump_height = -5,
     gravity = 9.8,
-    isGrounded = false
+    isGrounded = false,
+    bullet = {
+        w = 8,
+        h = 8,
+        direction = 1,
+        speed = 450,
+        exists = false
+    }
 }
 
 local blocks = {}
 
-local function drawBox(box, r,g,b)
+local function drawBox(box, r, g, b)
   love.graphics.setColor(r, g, b, 100)
   love.graphics.rectangle("fill", box.x, box.y, box.w, box.h)
 end
+
+--------------------------------------------------
+-- Bullets
+--------------------------------------------------
+
+local function fireBullet()
+    player.bullet["x"] = player.x + player.direction * 48
+    player.bullet["y"] = player.y + 16 - 4
+    player.bullet.direction = player.bullet.direction or player.direction
+    player.bullet.exists = true
+    world:add(player.bullet, player.bullet.x, player.bullet.y, player.bullet.w, player.bullet.h)
+end
+
+local function updateBullet(dt)
+    player.bullet.dx = player.bullet.speed * player.bullet.direction * dt
+    player.bullet.x, player.bullet.y, cols, len = world:move(player.bullet, (player.bullet.x + player.bullet.dx) % canvas.width, player.bullet.y)
+end
+
+local function drawBullet()
+    -- replace with tiles later
+    drawBox(player.bullet, 0, 255, 255)
+end
+
+--------------------------------------------------
+-- Players
+--------------------------------------------------
 
 local function updatePlayer(dt)
     -- debug
@@ -39,11 +73,18 @@ local function updatePlayer(dt)
         end
     end
 
+    -- fires bullet
+    if love.keyboard.isDown('s') and not player.bullet.exists then
+        fireBullet()
+    end
+
     -- x direction movement
     if love.keyboard.isDown('right') then
         player.dx = player.speed * dt
+        player.direction = 1
     elseif love.keyboard.isDown('left') then
         player.dx = -player.speed * dt
+        player.direction = -1
     elseif not love.keyboard.isDown('left') and not love.keyboard.isDown('right') then
         player.dx = 0
     end
@@ -64,7 +105,7 @@ local function updatePlayer(dt)
     -- movement
     if player.dx ~= 0 or player.dy ~= 0 then
         local cols
-        player.x, player.y, cols, len = world:move(player, (player.x + player.dx) % canvas.width, (player.y + player.dy) % canvas.width)
+        player.x, player.y, cols, len = world:move(player, (player.x + player.dx) % canvas.width, player.y + player.dy)
         if len <= 0 then
             player.isGrounded = false
         else
@@ -82,6 +123,10 @@ local function drawPlayer()
     -- replace with tiles later
     drawBox(player, 0, 255, 0)
 end
+
+--------------------------------------------------
+-- Blocks
+--------------------------------------------------
 
 local function addBlock(x, y, w, h)
     local block = {x = x, y = y, w = w, h = h}
@@ -104,9 +149,15 @@ end
 
 function love.update(dt)
     updatePlayer(dt)
+    if player.bullet.exists then
+        updateBullet(dt)
+    end
 end
 
 function love.draw()
     drawBlocks()
     drawPlayer()
+    if player.bullet.exists then
+        drawBullet()
+    end
 end
