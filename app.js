@@ -5,7 +5,9 @@ let config = require('./config/config.js');
 let net = require('net');
 let app = express();
 let loveSocket;
-let count = 0;
+let numPlayers = 0;
+let playerToSocket = {};
+let socketToPlayer = {};
 
 //In this case we're running the app from Users/Documents/Programming/Node Starter, so that's the value of __dirname
 //Now we tell the app to append /views to that path
@@ -33,18 +35,22 @@ let server = require('http').createServer(app);
 let loveServer = net.createServer(function(socket) {
     loveSocket = socket;
     loveSocket.on("connect", function () {
+        // not appearing
         console.log("Connected to LOVE2D");
     });
 
     loveSocket.on("data", function (d) {
+        d = d.toString()
         if(d == "exit\0") {
             console.log("exit");
             loveSocket.end();
             server.close();
         }
-        else {
-            console.log("LOVE2D: " + d);
+        else if (d[0] == "3"){
+            let ammoLeft = d.slice(1, d.length)
+            playerToSocket[1].emit('ammo', {ammoLeft: ammoLeft})
         }
+
     });
 });
 
@@ -61,8 +67,14 @@ loveServer.listen(5000, 'localhost')
 
 //bang, zap, boom, jump
 io.on('connection', function (socket) {
+  numPlayers++;
+  playerToSocket[numPlayers] = socket;
+  socketToPlayer[socket] = numPlayers;
+  //TODO: get all players to join rooms
+  socket.join('playerRoom');
   console.log('client socket connected')
   socket.on('sent word', function(data){
+    // TODO: still have to check if word is a command
     console.log(data)
   })
 });

@@ -47,6 +47,7 @@ end
 --------------------------------------------------
 
 local function fireBullet()
+    updateAmmo(2)
     player.bullet["x"] = player.x + player.direction * 48
     player.bullet["y"] = player.y + 16 - 4
     player.bullet.direction = player.bullet.direction or player.direction
@@ -184,6 +185,15 @@ function love.load()
     addBlock(-20, canvas.height * 0.75, canvas.width + 40, canvas.height * 0.25, 'ground')
     addBlock(128, canvas.height * 0.65, 128, 8, 'platform1')
 end
+
+function updateHealth(health)
+    tcp:send("2" .. health)
+end
+
+function updateAmmo(ammo)
+    tcp:send("3" .. ammo)
+end
+    
 
 function love.update(dt)
     local answer = tcp:receive()
