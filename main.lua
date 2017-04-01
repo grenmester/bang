@@ -61,11 +61,38 @@ end
 -- Players
 --------------------------------------------------
 
+local function playerCollision(player,collision)
+  if (player.x + player.dx) > canvas.width or (player.x + player.dx) < 0 then
+    oob = 'out of bounds'
+  else
+    oob = ''
+  end
+  print(string.format('Player collided at (%d,%d) with %s %s', player.x + player.dx, player.y + player.dy, collision.name, oob))
+  print(string.format('Player y = %d, dy = %d',player.y,player.dy))
+  -- update later to check collisions between different kinds of objects
+  -- always collide with the ground
+  if collision.name == 'ground' then
+    return 'slide'
+  elseif collision.name == 'platform1' then
+    -- if the player is off the screen, ignore platform collisions
+    if (player.x + player.dx) > canvas.width or (player.x + player.dx) < 0 then
+      return false
+    -- only collide if you're above the platform
+    elseif player.dy < 0 then
+      return false
+    else
+      return 'slide'
+    end
+  -- return slide by default
+  else
+    return 'slide'
+  end
+end
+
 local function updatePlayer(dt)
     -- debug
     if love.keyboard.isDown('d') then
-        print("player.dx: "..player.dx)
-        print("player.dy: "..player.dy)
+        print(string.format("player.dx,player.dy = (%d,%d)",player.dx,player.dy))
         if player.isGrounded then
             print("player.isGrounded: true")
         else
@@ -105,7 +132,11 @@ local function updatePlayer(dt)
     -- movement
     if player.dx ~= 0 or player.dy ~= 0 then
         local cols
-        player.x, player.y, cols, len = world:move(player, (player.x + player.dx) % canvas.width, player.y + player.dy)
+        --try to move (test for collision)
+        player.x, player.y, cols, len = world:move(player, (player.x + player.dx), (player.y + player.dy),playerCollision)
+        -- wrap the player around if the player went offscreen
+        player.x = player.x % canvas.width
+        world:update(player, player.x,player.y)
         if len <= 0 then
             player.isGrounded = false
         else
@@ -128,8 +159,8 @@ end
 -- Blocks
 --------------------------------------------------
 
-local function addBlock(x, y, w, h)
-    local block = {x = x, y = y, w = w, h = h}
+local function addBlock(x, y, w, h, name)
+    local block = {x = x, y = y, w = w, h = h, name = name}
     blocks[#blocks+1] = block
     world:add(block, x, y, w, h)
 end
@@ -143,8 +174,8 @@ end
 
 function love.load()
     world:add(player, player.x, player.y, player.w, player.h)
-    addBlock(0, canvas.height * 0.75, canvas.width, canvas.height * 0.25)
-    addBlock(128, canvas.height * 0.65, 128, 8)
+    addBlock(-20, canvas.height * 0.75, canvas.width + 40, canvas.height * 0.25, 'ground')
+    addBlock(128, canvas.height * 0.65, 128, 8, 'platform1')
 end
 
 function love.update(dt)
