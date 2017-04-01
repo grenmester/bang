@@ -1,56 +1,112 @@
-canvas = {}
-platforms = {}
-player = {}
+local bump = require 'lib.bump'
 
-function love.load()
-    -- canvas settings
-    canvas.width = love.graphics.getWidth()
-    canvas.height = love.graphics.getHeight()
-    canvas.x = 0
-    canvas.y = canvas.height * 0.75
+local world = bump.newWorld(32)
 
-    -- player settings
-	player.x = love.graphics.getWidth() * 0.5   -- This sets the player at the middle of the screen based on the width of the game window.
-	player.y = love.graphics.getHeight() * 0.75  -- This sets the player at the middle of the screen based on the height of the game window.
-    player.img = love.graphics.newImage('assets/purple.png')
+local canvas = {
+    width = love.graphics.getWidth(),
+    height = love.graphics.getHeight(),
+}
 
-    player.speed = 200
-    player.y_velocity = 0
-    player.jump_height = -300
-    player.gravity = -500
+local player = {
+    x = 375,
+    y = 250,
+    w = 32,
+    h = 32,
+    dx = 0,
+    dy = 0,
+    speed = 150,
+    jump_height = -5,
+    gravity = 9.8,
+    isGrounded = false
+}
 
-    platforms.ground = canvas.height * 0.75
+local blocks = {}
+
+local function drawBox(box, r,g,b)
+  love.graphics.setColor(r, g, b, 100)
+  love.graphics.rectangle("fill", box.x, box.y, box.w, box.h)
 end
 
-function love.update(dt)
-    -- movement
-	if love.keyboard.isDown('d') and not love.keyboard.isDown('a') then
-		player.x = (player.x + (player.speed * dt)) % canvas.width
-    elseif love.keyboard.isDown('a') and not love.keyboard.isDown('d') then
-	    player.x = (player.x - (player.speed * dt)) % canvas.width
-	end
-
-	if love.keyboard.isDown('w') then
-		if player.y_velocity == 0 then  -- if the player is on the ground
-			player.y_velocity = player.jump_height
+local function updatePlayer(dt)
+    -- debug
+    if love.keyboard.isDown('d') then
+        print("player.dx: "..player.dx)
+        print("player.dy: "..player.dy)
+        if player.isGrounded then
+            print("player.isGrounded: true")
+        else
+            print("player.isGrounded: false")
         end
     end
 
-    -- gravity
-    if player.y_velocity ~= 0 then
-		player.y = player.y + player.y_velocity * dt
-        player.y_velocity = player.y_velocity - player.gravity * dt
-	end
+    -- x direction movement
+    if love.keyboard.isDown('right') then
+        player.dx = player.speed * dt
+    elseif love.keyboard.isDown('left') then
+        player.dx = -player.speed * dt
+    elseif not love.keyboard.isDown('left') and not love.keyboard.isDown('right') then
+        player.dx = 0
+    end
 
-    -- ground collision detection
-    if player.y > platforms.ground then
-		player.y_velocity = 0
-    	player.y = platforms.ground
+    -- y direction movement
+    if love.keyboard.isDown('up') and player.isGrounded then
+        player.isGrounded = false
+        player.dy = player.jump_height
+    end
+
+    -- gravity
+    if player.isGrounded then
+        player.dy = 0
+    else
+        player.dy = player.dy + (player.gravity * dt)
+    end
+
+    -- movement
+    if player.dx ~= 0 or player.dy ~= 0 then
+        local cols
+        player.x, player.y, cols, len = world:move(player, (player.x + player.dx) % canvas.width, (player.y + player.dy) % canvas.width)
+        if len <= 0 then
+            player.isGrounded = false
+        else
+            for i = 1, len do
+                local col = cols[i]
+                if col.normal.x == 0 and col.normal.y == -1 then
+                    player.isGrounded = true
+                end
+            end
+        end
     end
 end
 
+local function drawPlayer()
+    -- replace with tiles later
+    drawBox(player, 0, 255, 0)
+end
+
+local function addBlock(x, y, w, h)
+    local block = {x = x, y = y, w = w, h = h}
+    blocks[#blocks+1] = block
+    world:add(block, x, y, w, h)
+end
+
+local function drawBlocks()
+    for _,block in ipairs(blocks) do
+        -- replace with tiles later
+        drawBox(block, 255, 0, 0)
+    end
+end
+
+function love.load()
+    world:add(player, player.x, player.y, player.w, player.h)
+    addBlock(0, canvas.height * 0.75, canvas.width, canvas.height * 0.25)
+    addBlock(128, canvas.height * 0.65, 128, 8)
+end
+
+function love.update(dt)
+    updatePlayer(dt)
+end
+
 function love.draw()
-	love.graphics.setColor(255, 255, 255)
-	love.graphics.rectangle('fill', canvas.x, canvas.y, canvas.width, canvas.height)
-	love.graphics.draw(player.img, player.x, player.y, 0, 1, 1, 0, 16)
+    drawBlocks()
+    drawPlayer()
 end
