@@ -108,8 +108,8 @@ class Player(Entity):
                     self.resolve_y_platform_collision(platforms_hit)
                 else:
                     self.resolve_y_platform_collision(hard_platforms)
-
-            self.rect.y %= self.world.height
+            if self.rect.y > self.world.height:
+                self.rect.y %= self.world.height
 
 
     def resolve_x_platform_collision(self, platforms_list):
@@ -157,7 +157,7 @@ class Player(Entity):
             x = self.rect.x
             # lead the bullet differently depending on what direction you're facing
             if self.direction < 0:
-                x = self.rect.x - 10
+                x = self.rect.x - 15
             elif self.direction > 0:
                 x = self.rect.x + self.rect.width
             # get bullet values
