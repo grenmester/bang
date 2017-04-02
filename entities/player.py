@@ -15,11 +15,7 @@ class Player(Entity):
     """
     Player class
     """
-<<<<<<< HEAD
     def __init__(self,x,y,speed,dy,width,height,world,weapon='revolver',hp=HP,gravity=GRAVITY,direction = 1,image_file=None,playerId=1):
-=======
-    def __init__(self,x,y,speed,dy,width,height,world, playerId, weapon='revolver',hp=HP,gravity=GRAVITY,direction = 1,image_file=None):
->>>>>>> moving-platforms
         # dx is speed (there is directionality to movement for the player)
         super().__init__(x,y,speed,dy,width,height,world,color=(255,0,0),image_file=image_file)
         global NUM_PLAYERS
@@ -35,7 +31,10 @@ class Player(Entity):
         self.direction = direction
         self.dropping = False
         self.alive = True
-        self.id = playerId
+        if playerId:
+            self.id = playerId
+        else:
+            self.id = NUM_PLAYERS
         # self.world.clientsocket.send(("player " + str(self.id)).encode("utf-8"))
 
     def sendColor(self):
@@ -153,7 +152,7 @@ class Player(Entity):
         Damages player; returns True if player killed, False otherwise
         """
         self.hp -= damage
-        self.sendHealth()
+        # self.sendHealth()
         if self.hp <= 0:
             self.kill()
             self.alive = False
@@ -181,7 +180,7 @@ class Player(Entity):
             bullet = Bullet(**args)
             self.world.bullets.add(bullet)
             self.ammo_count -= 1
-            self.sendAmmo()
+            # self.sendAmmo()
 
     def reload(self):
         self.ammo_count = self.max_ammo

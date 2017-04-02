@@ -1,11 +1,12 @@
 import pygame, random
-from socketIO_client import SocketIO, LoggingNamespace
-from socketClientThread import SocketClientThread, ClientCommand, ClientReply
+#import socket
+
 from entities.world import World
 from entities.player import Player
 from entities.platform import Platform
 from entities.healthbar import Healthbar
-import Queue
+# import cProfile as profile
+commands = ["jump", "bang", "drop", "turn"]
 
 SPEED = 10
 
@@ -126,7 +127,7 @@ def main():
         world.update()
         world.draw()
         clock.tick(45)
+        pygame.display.flip()
 
-# profile.run('main()')
 if __name__ == '__main__':
     main()
