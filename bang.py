@@ -105,18 +105,18 @@ def main():
             #            player.jump()
             #            print("jumped")
 
-                rand = random.randint(0,99)
-                if rand in range(1,15):
-                    cpu.turn()
-                if rand in range(21,35):
-                    cpu.jump()
-                if rand in range(41,60):
-                    cpu.drop()
-                if rand in range(61,80) or not cpu.alive:
-                    cpu.shoot()
-                    cpu.attempt_respawn()
-                if rand in range(81,100):
-                    cpu.reload()
+        rand = random.randint(0,99)
+        if rand in range(1,15):
+            cpu.turn()
+        if rand in range(21,35):
+            cpu.jump()
+        if rand in range(41,60):
+            cpu.drop()
+        if rand in range(61,80) or not cpu.alive:
+            cpu.shoot()
+            cpu.attempt_respawn()
+        if rand in range(81,100):
+            cpu.reload()
 
         world.update()
         world.draw()
