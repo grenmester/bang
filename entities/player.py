@@ -146,6 +146,8 @@ class Player(Entity):
             self.rect.y = min(map(lambda s: s.rect.top,platforms_list))-self.rect.height
             # if you collide, set dy to 0
             self.dy = 0
+        if self.rect.y + self.rect. height> self.world.height - 100 + 3:
+            self.rect.y = self.world.height - 100 + self.rect.height
 
     def damage(self,damage):
         """

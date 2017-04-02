@@ -7,7 +7,7 @@ let app = express();
 let numPlayers = 0;
 let playerToSocket = {};
 let socketToPlayer = {};
-let commandSet = new Set(['jump', 'shoot', 'turn', 'drop'])
+let commandSet = new Set(['jump', 'bang', 'turn', 'drop', 'reload', 'rip'])
 let fs = require('fs')
 //In this case we're running the app from Users/Documents/Programming/Node Starter, so that's the value of __dirname
 //Now we tell the app to append /views to that path
@@ -79,7 +79,7 @@ io.on('connection', function (socket) {
   fs.appendFile('input.txt', string1, function(err){
     console.error(err)
   })
-  
+
   //TODO: get all players to join rooms
   //socket.join('playerRoom');
 

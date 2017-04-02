@@ -7,8 +7,11 @@ from entities.platform import Platform
 from entities.healthbar import Healthbar
 # import cProfile as profile
 commands = ["jump", "bang", "drop", "turn"]
+bot = False
 
 SPEED = 10
+global max_command_index
+max_command_index = 0
 
 def main():
 
@@ -79,8 +82,8 @@ def main():
 
             # Player
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_t:
-                    player.turn()
+                # if event.key == pygame.K_t:
+                #     player.turn()
                 if event.key == pygame.K_LEFT:
                     player.move_left()
                 if event.key == pygame.K_RIGHT:
@@ -94,16 +97,38 @@ def main():
                     player.drop()
                 if event.key == pygame.K_RSHIFT:
                     player.reload()
+                if not bot:
+                    # if event.key == pygame.K_t:
+                    #     cpu.turn()
+                    if event.key == pygame.K_a:
+                        cpu.move_left()
+                    if event.key == pygame.K_d:
+                        cpu.move_right()
+                    if event.key == pygame.K_w:
+                        cpu.jump()
+                    if event.key == pygame.K_LSHIFT:
+                        cpu.shoot()
+                        cpu.attempt_respawn()
+                    if event.key == pygame.K_s:
+                        cpu.drop()
+                    if event.key == pygame.K_q:
+                        cpu.reload()
 
         command = ''
         with open('input.txt', 'r') as input_command:
-            lines = input_command.readlines()[-1]
+            lines = input_command.readlines()
+            command_index = len(lines)
+            global max_command_index
             # read the last line of the file
             #print(input_command.readlines())
-            if lines != []:
-                command = lines
+            if command_index > max_command_index:
+                command = lines[-1]
                 print(command)
+                max_command_index = command_index
+            else:
+                command = ""
 
+            # print(command)
             if "turn" in command:
                 player.turn()
                 #input_command.write("blank")
@@ -114,26 +139,30 @@ def main():
             if "drop" in command:
                 player.drop()
                 #input_command.write("blank")
-            if "shoot" in command:
+            if "bang" in command:
                 player.shoot()
                 player.attempt_respawn()
                 #input_command.write("blank")
             if "reload" in command:
                 player.reload()
                 #input_command.write("blank")
+            if "rip" in command:
+                player.attempt_respawn()
 
-        rand = 12#random.randint(0,99)
-        if rand in range(1,10):
-            cpu.turn()
-        if rand in range(21,30):
-            cpu.jump()
-        if rand in range(41,60):
-            cpu.drop()
-        if rand in range(61,80) or not cpu.alive:
-            pu.shoot()
-            cpu.attempt_respawn()
-        if rand in range(81,95):
-            cpu.reload()
+        if bot:
+            rand = random.randint(0,99)
+            if rand in range(1,10):
+                cpu.turn()
+            if rand in range(21,30):
+                cpu.jump()
+            if rand in range(41,60):
+                cpu.drop()
+            if rand in range(61,70) or not cpu.alive:
+                cpu.shoot()
+                cpu.attempt_respawn()
+            if rand in range(70,95):
+                cpu.reload()
+
 
         world.update()
         world.draw()
