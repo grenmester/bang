@@ -26,7 +26,8 @@ def main():
     world.add_platforms([ground,platform1, platform2, platform3, platform4, platform5])
 
     player = Player(width//2, height//2,SPEED,0,32,32,world,playerId=1, weapon='bazooka', image_file='assets/char1.png')
-    world.add_players([player])
+    player2 = Player(width//2, height//2,SPEED,0,32,32,world,playerId=2, weapon='laser', image_file='assets/char2.png')
+    world.add_players([player, player2])
 
     pygame.init()
     pygame.display.set_caption('Bang!')
@@ -88,19 +89,19 @@ def main():
                     player.drop()
                 if event.key == pygame.K_RSHIFT:
                     player.reload()
-                # if event.key == pygame.K_a:
-                #     player2.move_left()
-                # if event.key == pygame.K_d:
-                #     player2.move_right()
-                # if event.key == pygame.K_w:
-                #     player2.jump()
-                # if event.key == pygame.K_s:
-                #     player2.drop()
-                # if event.key == pygame.K_q:
-                #     player2.shoot()
-                #     player2.attempt_respawn()
-                # if event.key == pygame.K_r:
-                #     player2.restore_ammo()
+                if event.key == pygame.K_a:
+                    player2.move_left()
+                if event.key == pygame.K_d:
+                    player2.move_right()
+                if event.key == pygame.K_w:
+                    player2.jump()
+                if event.key == pygame.K_s:
+                    player2.drop()
+                if event.key == pygame.K_q:
+                    player2.shoot()
+                    player2.attempt_respawn()
+                if event.key == pygame.K_r:
+                    player2.restore_ammo()
 
         world.update()
         world.draw()
