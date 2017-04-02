@@ -48,12 +48,16 @@ let loveServer = net.createServer(function(socket) {
         }
         else if (d[0] == "3"){
             let ammoLeft = d.slice(1, d.length)
+            // TODO: identify player numbers
             playerToSocket[1].emit('ammo', {ammoLeft: ammoLeft})
+        }
+        else if (d[0] == "2"){
+            let healthLeft = d.slice(1, d.length)
+            playerToSocket[1].emit('health', {healthLeft: healthLeft})
         }
 
     });
 });
-
 
 let io = require('socket.io')(server);
 
@@ -74,7 +78,7 @@ io.on('connection', function (socket) {
   socket.join('playerRoom');
   console.log('client socket connected')
   socket.on('sent word', function(data){
-    // TODO: still have to check if word is a command
+    // TODO: still have to check if word is a command and send it to game engine
     console.log(data)
   })
 });
