@@ -95,15 +95,21 @@ def main():
                 if event.key == pygame.K_RSHIFT:
                     player.reload()
 
-            #if pygame.KEYDOWN or not pygame.KEYDOWN:
-            #    with open('input.txt', 'r') as input_command:
-            #        # read the last line
-            #        command = input_command.readlines()[-1]
-            #        print(command)
+        with open('input.txt', 'r') as input_command:
+            # read the last line of the file
+            command = input_command.readlines()[-1]
 
-            #        if "jump" in command:
-            #            player.jump()
-            #            print("jumped")
+            if "turn" in command:
+                player.turn()
+            if "jump" in command:
+                player.jump()
+            if "drop" in command:
+                player.drop()
+            if "shoot" in command:
+                player.shoot()
+                player.attempt_respawn()
+            if "reload" in command:
+                player.reload()
 
         rand = random.randint(0,99)
         if rand in range(1,15):
