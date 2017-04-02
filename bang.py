@@ -2,10 +2,8 @@ import pygame
 import socket
 
 from entities.world import World
-from entities.entity import Entity
 from entities.player import Player
 from entities.platform import Platform
-from entities.bullet import Bullet
 
 SPEED = 2
 
@@ -22,8 +20,8 @@ def main():
     platform4 = Platform(100,height - 400,2,0,200,20,world, True, True, 0, world.width//2)
     platform5 = Platform(world.width//2 + 100 ,height - 400,2,0,200,20,world, True, True, world.width//2, world.width)
     world.add_platforms([ground,platform1, platform2, platform3, platform4, platform5])
-    player = Player(width//2, height//2,SPEED,0,32,32,world)
-    player2 = Player(0,0,SPEED,0,32,32,world,weapon='bazooka')
+    player = Player(width//2, height//2,SPEED,0,32,32,world,image_file='assets/char1.png')
+    player2 = Player(0,0,SPEED,0,32,32,world,weapon='bazooka',image_file='assets/char1.png')
     world.add_players([player, player2])
     pygame.init()
     pygame.display.set_caption('Bang!')

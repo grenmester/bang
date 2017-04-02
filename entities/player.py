@@ -1,4 +1,4 @@
-import pygame
+import pygame, os
 from entities.entity import Entity
 from entities.bullet import Bullet
 
@@ -164,7 +164,7 @@ class Player(Entity):
             bullet_speed = WEAPONS[self.weapon]['speed']
             bullet_file_name = WEAPONS[self.weapon]['bullet_file_name']
             bullet_damage = WEAPONS[self.weapon]['damage']
-            args = {'x':x, 'y': self.rect.y + round(self.rect.height * .25),
+            args = {'x':x, 'y': self.rect.y + round(self.rect.height * .6),
                     'dx':bullet_speed*self.direction, 'dy':0,
                     'width':None, 'height':None, 'world':self.world, 'weapon':self.weapon,
                     'damage':bullet_damage,'player':self, 'image_file':bullet_file_name}
@@ -199,13 +199,19 @@ class Player(Entity):
         """
         Moves the player left
         """
+        oldDirection = self.direction
         self.direction = -1
+        if not oldDirection == self.direction:
+            self.image = pygame.transform.flip(self.image, True, False)
 
     def move_right(self):
         """
         Move the player right
         """
+        oldDirection = self.direction
         self.direction = 1
+        if not oldDirection == self.direction:
+            self.image = pygame.transform.flip(self.image, True, False)
 
     def stop(self):
         """
@@ -218,7 +224,7 @@ class Player(Entity):
         self.rect.x = x
         self.rect.y = y
         self.alive = True
-        self.ammo_count = max_ammo
+        self.ammo_count = self.max_ammo
         self.world.add_players([self])
 
     def attempt_respawn(self):

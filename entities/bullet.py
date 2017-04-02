@@ -1,4 +1,4 @@
-import pygame
+import pygame, os
 from entities.entity import Entity
 
 class Bullet(Entity):
@@ -9,6 +9,8 @@ class Bullet(Entity):
         self.damage = damage
         # player who fired the bullet
         self.player = player
+        if self.player.direction == -1:
+            self.image = pygame.transform.flip(self.image, True, False)
 
     def update(self):
         self.rect.x += self.dx
