@@ -1,0 +1,203 @@
+import pygame
+from entities.entity import Entity
+
+GRAVITY = 1
+HP = 5
+RESPAWN_TICKS = 5
+
+class Player(Entity):
+    """
+    Player class
+    """
+    def __init__(self,x,y,speed,dy,width,height,world,hp=HP,gravity=GRAVITY,direction = 1):
+        # dx is speed (there is directionality to movement for the player)
+        super().__init__(x,y,speed,dy,width,height,world,color=(255,0,0))
+        self.start_x,self.start_y = x,y
+        self.type = 'player'
+        self.hp = hp
+        self.weapon = None
+        self.ammo_count = None
+        self.gravity = gravity
+        self.speed = speed
+        self.direction = direction
+        self.dropping = False
+        self.alive = True
+
+    def update(self):
+        """
+        Update the player location
+        """
+        # # the entities we are allowed to collide with
+        # collidable_entities = pygame.sprite.Group()
+        # collidable_entities.add(self.world.players)
+        # collidable_entities.add(self.world.platforms)
+        if self.dropping:
+            self.rect.x += self.speed * self.direction
+            self.rect.x %= self.world.width
+            self.rect.y += self.dy
+            self.rect.y += 1
+            if self.rect.y > self.world.height:
+                self.rect.y%= self.world.height
+            self.dy += self.gravity
+
+            platforms_hit = pygame.sprite.spritecollide(self, self.world.platforms, False)
+            if not platforms_hit:
+                self.dropping = False
+        else:
+            self.check_moving_platform()
+
+            self.rect.x += self.speed * self.direction
+            # first check for collisions in moving without wrapping
+            platforms_hit = pygame.sprite.spritecollide(self, self.world.platforms, False)
+            passthrough_platforms = [x for x in platforms_hit if x.passthrough]
+            hard_platforms = [x for x in platforms_hit if not x.passthrough]
+            if hard_platforms and not passthrough_platforms:
+                # if we're moving left
+                self.resolve_x_platform_collision(hard_platforms)
+                # now we try to wrap the player around
+            elif passthrough_platforms and not hard_platforms:
+                if self.rect.y + self.rect.height < max(map(lambda s: s.rect.height, passthrough_platforms)):
+                    self.resolve_x_platform_collision(passthrough_platforms)
+
+            elif passthrough_platforms and hard_platforms:
+                if self.rect.y + self.rect.height < max(map(lambda s: s.rect.height, passthrough_platforms)):
+                    self.resolve_x_platform_collision(platforms_hit)
+                else:
+                    self.resolve_x_platform_collision(hard_platforms)
+
+
+
+            self.rect.y += self.dy
+            # decrement velocity by acceleration
+            self.dy += self.gravity
+
+            # check for collisions (this time in the y direction)
+            platforms_hit = pygame.sprite.spritecollide(self, self.world.platforms, False)
+            passthrough_platforms = [x for x in platforms_hit if x.passthrough]
+            hard_platforms = [x for x in platforms_hit if not x.passthrough]
+            if hard_platforms and not passthrough_platforms:
+                self.resolve_y_platform_collision(hard_platforms)
+
+            elif passthrough_platforms and not hard_platforms:
+                if self.rect.y + self.rect.height < max(map(lambda s: s.rect.y, passthrough_platforms)) + self.dy:
+                    self.resolve_y_platform_collision(passthrough_platforms)
+
+            elif passthrough_platforms and hard_platforms:
+                if self.rect.y + self.rect.height < max(map(lambda s: s.rect.y, passthrough_platforms)) + self.dy:
+                    self.resolve_y_platform_collision(platforms_hit)
+                else:
+                    self.resolve_y_platform_collision(hard_platforms)
+
+            self.rect.x %= self.world.width
+            if self.rect.y > self.world.height:
+                self.rect.y%= self.world.height
+
+
+    def resolve_x_platform_collision(self, platforms_list):
+        if self.direction < 0:
+            self.rect.x = max(map(lambda s: s.rect.right,platforms_list))
+
+        # if we're moving right
+        elif self.direction > 0:
+
+            # push the player to the left edge of the leftmost entity
+            self.rect.x = min(map(lambda s: s.rect.left,platforms_list))- self.rect.width
+
+    def resolve_y_platform_collision(self, platforms_list):
+        if self.dy < 0:
+
+            # push the player to the bottom edge of the rightmost entitiy
+            self.rect.y = max(map(lambda s: s.rect.bottom,platforms_list))
+            # if you collide, set dy to 0
+            self.dy = 0
+
+        # if we're moving right
+        elif self.dy > 0:
+
+            # push the player to the top edge of the leftmost entity
+            self.rect.y = min(map(lambda s: s.rect.top,platforms_list))-self.rect.height
+            # if you collide, set dy to 0
+            self.dy = 0
+
+    def check_moving_platform(self):
+        self.rect.y += 1
+        platforms_hit = pygame.sprite.spritecollide(self, self.world.platforms, False)
+        self.rect.y -= 1
+        if platforms_hit:
+            if any([x.dx!= 0 for x in platforms_hit]):
+                print("on moving platform")
+                print(platforms_hit[0].dx)
+                self.dx = self.direction * self.speed + platforms_hit[0].dx
+            else:
+                self.dx = self.direction * self.speed
+        else:
+            self.dx = self.direction * self.speed
+
+    def damage(self,damage):
+        self.hp -= damage
+        if self.hp < 0:
+            self.kill()
+            self.alive = False
+            self.ticks_until_respawn = RESPAWN_TICKS
+
+    def shoot(self):
+        if self.alive:
+            # create a hardcoded bullet
+            x = self.rect.x
+            # lead the bullet differently depending on what direction you're facing
+            if self.direction < 0:
+                x = self.rect.x - 10
+            elif self.direction > 0:
+                x = self.rect.x + self.rect.width
+            bullet = Bullet(x, self.rect.y + round(self.rect.height * .25), 4*self.direction, 0, 8, 3, self.world, 1, self)
+            self.world.bullets.add(bullet)
+
+    def jump(self):
+        """
+        Increases y velocity
+        """
+        self.rect.y +=1
+        entities_hit = pygame.sprite.spritecollide(self, self.world.platforms, False)
+        # if you are touching at least one platform, jump
+        self.rect.y-=1
+        if entities_hit:
+            self.dy = -15
+
+    def drop(self):
+        self.rect.y +=1
+        platforms_hit = pygame.sprite.spritecollide(self, self.world.platforms, False)
+        # if you are touching at least one platform, jump
+        self.rect.y-=1
+        if all([x.dropdown for x in platforms_hit]):
+            self.dropping = True
+
+    def move_left(self):
+        """
+        Moves the player left
+        """
+        self.direction = -1
+
+    def move_right(self):
+        """
+        Move the player right
+        """
+        self.direction = 1
+
+    def stop(self):
+        """
+        Stops player movement
+        """
+        self.direction = 0
+
+    def spawn(self,x,y,hp=HP):
+        self.hp = hp
+        self.rect.x = x
+        self.rect.y = y
+        self.alive = True
+        self.world.add_players([self])
+
+    def attempt_respawn(self):
+        if not self.alive:
+            self.ticks_until_respawn -= 1
+            if self.ticks_until_respawn == 0:
+                self.spawn(self.start_x,self.start_y,HP)
