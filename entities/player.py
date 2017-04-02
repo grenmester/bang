@@ -146,7 +146,7 @@ class Player(Entity):
         Damages player; returns True if player killed, False otherwise
         """
         self.hp -= damage
-        # self.sendHealth()
+        self.sendHealth()
         if self.hp < 0:
             self.kill()
             self.alive = False
@@ -174,7 +174,7 @@ class Player(Entity):
             bullet = Bullet(**args)
             self.world.bullets.add(bullet)
             self.ammo_count -= 1
-            # self.sendAmmo()
+            self.sendAmmo()
 
     def reload(self):
         self.ammo_count = self.max_ammo
