@@ -153,7 +153,7 @@ class Player(Entity):
         """
         self.hp -= damage
         # self.sendHealth()
-        if self.hp < 0:
+        if self.hp <= 0:
             self.kill()
             self.alive = False
             self.ticks_until_respawn = RESPAWN_TICKS

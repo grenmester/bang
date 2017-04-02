@@ -13,16 +13,18 @@ class World():
     # # socketIO.emit('aaa')
     # # socketIO.wait(seconds=1)
 
-    def __init__(self,width,height,players=[],bullets=[],platforms=[]):
+    def __init__(self,width,height,players=[],bullets=[],platforms=[], healthbars=[]):
         self.width = width
         self.height = height
         self.players = pygame.sprite.Group()
         self.bullets = pygame.sprite.Group()
         self.platforms = pygame.sprite.Group()
+        self.healthbars = pygame.sprite.Group()
         self.screen = pygame.display.set_mode([width,height])
         self.players.add(*players)
         self.bullets.add(*bullets)
         self.platforms.add(*platforms)
+        self.healthbars.add(*healthbars)
         #self.clientsocket = SocketIO('localhost', 5001, LoggingNamespace)
         #self.clientsocket.emit("connected", {"data": "Python socket connected"})
         self.playerIds = {" ":True}
@@ -46,10 +48,14 @@ class World():
     def add_platforms(self,platforms):
         self.platforms.add(*platforms)
 
+    def add_healthbars(self,healthbars):
+        self.healthbars.add(*healthbars)
+
     def update(self):
         self.platforms.update()
         self.players.update()
         self.bullets.update()
+        self.healthbars.update()
 
     def draw(self):
         """
@@ -59,3 +65,12 @@ class World():
         self.platforms.draw(self.screen)
         self.players.draw(self.screen)
         self.bullets.draw(self.screen)
+        self.healthbars.draw(self.screen)
+
+#        healthbar = pygame.image.load("assets/char2.png")
+#        laser = pygame.image.load("assets/laser.png")
+#        self.screen.blit(healthbar, (5,5))
+#        for health1 in range(5):
+#            self.screen.blit(laser, (health1+8,8))
+#        #update the screen
+#        pygame.display.flip()

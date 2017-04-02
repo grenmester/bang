@@ -4,6 +4,7 @@ import pygame
 from entities.world import World
 from entities.player import Player
 from entities.platform import Platform
+from entities.healthbar import Healthbar
 # import cProfile as profile
 commands = ["jump", "bang", "drop", "turn"]
 
@@ -27,7 +28,10 @@ def main():
 
     player = Player(width//2, height//2,SPEED,0,32,32,world,playerId=1, weapon='bazooka', image_file='assets/char1.png')
     player2 = Player(width//2, height//2,SPEED,0,32,32,world,playerId=2, weapon='laser', image_file='assets/char2.png')
+    healthbar = Healthbar(width//2, height//2, 0, 0, 80, 16, world, player)
+    healthbar2 = Healthbar(width//2, height//2, 0, 0, 80, 16, world, player2)
     world.add_players([player, player2])
+    world.add_healthbars([healthbar, healthbar2])
 
     pygame.init()
     pygame.display.set_caption('Bang!')
@@ -101,7 +105,7 @@ def main():
                     player2.shoot()
                     player2.attempt_respawn()
                 if event.key == pygame.K_r:
-                    player2.restore_ammo()
+                    player2.reload()
 
         world.update()
         world.draw()
