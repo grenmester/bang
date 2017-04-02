@@ -7,7 +7,6 @@ class World():
     World class
     """
 
-    #     # socketIO.wait_for_callbacks(seconds=5)
     # socketIO.emit('hi-event', {1:1}, on_bye_response)
 
     # socketIO.on('aaa', on_aaa_response)

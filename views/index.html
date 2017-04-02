@@ -408,11 +408,11 @@ function showButtons(style) {
 
 socket.on('ammo', function(data){
   console.log('shot ammo!')
-  shoot(data[ammo])
+  shoot(data['ammo'])
 })
 
 socket.on('health', function(data){
   console.log('lost health!')
-  die(data[health])
+  die(data['health'])
 })
 </script>

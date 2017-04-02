@@ -1,5 +1,5 @@
 import pygame
-import socket
+from socketIO_client import SocketIO, LoggingNamespace
 
 from entities.world import World
 from entities.player import Player
@@ -9,9 +9,14 @@ from entities.platform import Platform
 
 SPEED = 2
 
+# def on_bye_response(*args):
+#     print(args)
+
 def main():
-
-
+    # socketIO = SocketIO('localhost', 5001, LoggingNamespace)
+    # socketIO.emit('hi-event', {1:1})
+    # socketIO.on('bye-event', on_bye_response)
+    # socketIO.wait(seconds=1)
 
     # socket stuff end
     width, height = 700, 500
