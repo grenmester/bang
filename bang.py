@@ -101,13 +101,16 @@ class Player(Entity):
             self.rect.x %= self.world.width
             self.rect.y += self.dy
             self.rect.y += 1
-            self.rect.y %= self.world.height
+            if self.rect.y > self.world.height:
+                self.rect.y%= self.world.height
             self.dy += self.gravity
 
             platforms_hit = pygame.sprite.spritecollide(self, self.world.platforms, False)
             if not platforms_hit:
                 self.dropping = False
         else:
+            self.check_moving_platform()
+
             self.rect.x += self.speed * self.direction
             # first check for collisions in moving without wrapping
             platforms_hit = pygame.sprite.spritecollide(self, self.world.platforms, False)
@@ -128,7 +131,6 @@ class Player(Entity):
                     self.resolve_x_platform_collision(hard_platforms)
 
 
-            self.rect.x %= self.world.width
 
             self.rect.y += self.dy
             # decrement velocity by acceleration
@@ -151,7 +153,9 @@ class Player(Entity):
                 else:
                     self.resolve_y_platform_collision(hard_platforms)
 
-            self.rect.y %= self.world.height
+            self.rect.x %= self.world.width
+            if self.rect.y > self.world.height:
+                self.rect.y%= self.world.height
 
 
     def resolve_x_platform_collision(self, platforms_list):
@@ -179,6 +183,20 @@ class Player(Entity):
             self.rect.y = min(map(lambda s: s.rect.top,platforms_list))-self.rect.height
             # if you collide, set dy to 0
             self.dy = 0
+
+    def check_moving_platform(self):
+        self.rect.y += 1
+        platforms_hit = pygame.sprite.spritecollide(self, self.world.platforms, False)
+        self.rect.y -= 1
+        if platforms_hit:
+            if any([x.dx!= 0 for x in platforms_hit]):
+                print("on moving platform")
+                print(platforms_hit[0].dx)
+                self.dx = self.direction * self.speed + platforms_hit[0].dx
+            else:
+                self.dx = self.direction * self.speed
+        else:
+            self.dx = self.direction * self.speed
 
     def damage(self,damage):
         self.hp -= damage
@@ -268,7 +286,8 @@ class Platform(Entity):
             self.dx *= -1
         self.rect.x %= self.world.width
         self.rect.y += self.dy
-        self.rect.y %= self.world.height
+        if self.rect.y > self.world.height:
+                self.rect.y%= self.world.height
 
 
 class Bullet(Entity):
