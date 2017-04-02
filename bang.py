@@ -3,6 +3,7 @@ import pygame
 GRAVITY = 1
 SPEED = 2
 HP = 5
+RESPAWN_TICKS = 5
 
 class World():
     """
@@ -76,6 +77,7 @@ class Player(Entity):
     def __init__(self,x,y,speed,dy,width,height,world,hp=HP,gravity=GRAVITY,direction = 1):
         # dx is speed (there is directionality to movement for the player)
         super().__init__(x,y,speed,dy,width,height,world,color=(255,0,0))
+        self.start_x,self.start_y = x,y
         self.type = 'player'
         self.hp = hp
         self.weapon = None
@@ -84,6 +86,7 @@ class Player(Entity):
         self.speed = speed
         self.direction = direction
         self.dropping = False
+        self.alive = True
 
     def update(self):
         """
@@ -103,10 +106,6 @@ class Player(Entity):
             platforms_hit = pygame.sprite.spritecollide(self, self.world.platforms, False)
             if not platforms_hit:
                 self.dropping = False
-
-
-
-
         else:
             self.rect.x += self.speed * self.direction
             # first check for collisions in moving without wrapping
@@ -152,10 +151,8 @@ class Player(Entity):
                 else:
                     self.resolve_y_platform_collision(hard_platforms)
 
-
-
-
             self.rect.y %= self.world.height
+
 
     def resolve_x_platform_collision(self, platforms_list):
         if self.direction < 0:
@@ -187,17 +184,20 @@ class Player(Entity):
         self.hp -= damage
         if self.hp < 0:
             self.kill()
+            self.alive = False
+            self.ticks_until_respawn = RESPAWN_TICKS
 
     def shoot(self):
-        # create a hardcoded bullet
-        x = self.rect.x
-        # lead the bullet differently depending on what direction you're facing
-        if self.direction < 0:
-            x = self.rect.x - 10
-        elif self.direction > 0:
-            x = self.rect.x + self.rect.width
-        bullet = Bullet(x, self.rect.y + round(self.rect.height * .25), 4*self.direction, 0, 8, 3, self.world, 1, self)
-        self.world.bullets.add(bullet)
+        if self.alive:
+            # create a hardcoded bullet
+            x = self.rect.x
+            # lead the bullet differently depending on what direction you're facing
+            if self.direction < 0:
+                x = self.rect.x - 10
+            elif self.direction > 0:
+                x = self.rect.x + self.rect.width
+            bullet = Bullet(x, self.rect.y + round(self.rect.height * .25), 4*self.direction, 0, 8, 3, self.world, 1, self)
+            self.world.bullets.add(bullet)
 
     def jump(self):
         """
@@ -235,6 +235,19 @@ class Player(Entity):
         Stops player movement
         """
         self.direction = 0
+
+    def spawn(self,x,y,hp=HP):
+        self.hp = hp
+        self.rect.x = x
+        self.rect.y = y
+        self.alive = True
+        self.world.add_players([self])
+
+    def attempt_respawn(self):
+        if not self.alive:
+            self.ticks_until_respawn -= 1
+            if self.ticks_until_respawn == 0:
+                self.spawn(self.start_x,self.start_y,HP)
 
 class Platform(Entity):
     # if you want moving platforms, specify here minimum and maximum x and y values
@@ -319,6 +332,7 @@ def main():
                     player.jump()
                 if event.key == pygame.K_SPACE:
                     player.shoot()
+                    player.attempt_respawn()
                 if event.key == pygame.K_DOWN:
                     player.drop()
                 if event.key == pygame.K_a:
@@ -331,6 +345,7 @@ def main():
                     player2.drop()
                 if event.key == pygame.K_q:
                     player2.shoot()
+                    player2.attempt_respawn()
 
         world.update()
         world.draw()
