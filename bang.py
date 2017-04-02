@@ -4,6 +4,7 @@ GRAVITY = 1
 SPEED = 2
 HP = 5
 RESPAWN_TICKS = 5
+AMMO = 10
 
 class World():
     """
@@ -81,7 +82,7 @@ class Player(Entity):
         self.type = 'player'
         self.hp = hp
         self.weapon = None
-        self.ammo_count = None
+        self.ammo_count = AMMO
         self.gravity = gravity
         self.speed = speed
         self.direction = direction
@@ -181,14 +182,19 @@ class Player(Entity):
             self.dy = 0
 
     def damage(self,damage):
+        """
+        Damages player; returns True if player killed, False otherwise
+        """
         self.hp -= damage
         if self.hp < 0:
             self.kill()
             self.alive = False
             self.ticks_until_respawn = RESPAWN_TICKS
+            return True
+        return False
 
     def shoot(self):
-        if self.alive:
+        if self.alive and self.ammo_count > 0:
             # create a hardcoded bullet
             x = self.rect.x
             # lead the bullet differently depending on what direction you're facing
@@ -198,6 +204,10 @@ class Player(Entity):
                 x = self.rect.x + self.rect.width
             bullet = Bullet(x, self.rect.y + round(self.rect.height * .25), 4*self.direction, 0, 8, 3, self.world, 1, self)
             self.world.bullets.add(bullet)
+            self.ammo_count -= 1
+
+    def reload(self):
+        self.ammo_count = AMMO
 
     def jump(self):
         """
@@ -241,6 +251,7 @@ class Player(Entity):
         self.rect.x = x
         self.rect.y = y
         self.alive = True
+        self.ammo_count = AMMO
         self.world.add_players([self])
 
     def attempt_respawn(self):
@@ -248,6 +259,12 @@ class Player(Entity):
             self.ticks_until_respawn -= 1
             if self.ticks_until_respawn == 0:
                 self.spawn(self.start_x,self.start_y,HP)
+
+    def restore_ammo(self,ammo=AMMO):
+        # add ammo but don't exceed the max
+        self.ammo_count += ammo
+        if self.ammo_count > AMMO:
+            self.ammo_count = AMMO
 
 class Platform(Entity):
     # if you want moving platforms, specify here minimum and maximum x and y values
@@ -286,7 +303,9 @@ class Bullet(Entity):
             # damage all players if you intersect instead of undefined behavior
             for player in players_hit:
                 if player != self.player:
-                    player.damage(self.damage)
+                    opponent_killed = player.damage(self.damage)
+                    if opponent_killed:
+                        self.player.restore_ammo()
         # check for bullet collisions
         bullets_hit = pygame.sprite.spritecollide(self, self.world.bullets, False)
         if bullets_hit:
@@ -335,6 +354,8 @@ def main():
                     player.attempt_respawn()
                 if event.key == pygame.K_DOWN:
                     player.drop()
+                if event.key == pygame.K_RSHIFT:
+                    player.restore_ammo()
                 if event.key == pygame.K_a:
                     player2.move_left()
                 if event.key == pygame.K_d:
@@ -346,6 +367,8 @@ def main():
                 if event.key == pygame.K_q:
                     player2.shoot()
                     player2.attempt_respawn()
+                if event.key == pygame.K_r:
+                    player2.restore_ammo()
 
         world.update()
         world.draw()
