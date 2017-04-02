@@ -100,6 +100,7 @@ class Player(Entity):
             self.rect.x += self.speed * self.direction
             self.rect.x %= self.world.width
             self.rect.y += self.dy
+            self.rect.y += 1
             self.rect.y %= self.world.height
             self.dy += self.gravity
 
@@ -113,7 +114,6 @@ class Player(Entity):
             passthrough_platforms = [x for x in platforms_hit if x.passthrough]
             hard_platforms = [x for x in platforms_hit if not x.passthrough]
             if hard_platforms and not passthrough_platforms:
-
                 # if we're moving left
                 self.resolve_x_platform_collision(hard_platforms)
                 # now we try to wrap the player around
