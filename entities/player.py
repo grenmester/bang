@@ -2,7 +2,7 @@ import pygame, os
 from entities.entity import Entity
 from entities.bullet import Bullet
 
-GRAVITY = 5
+GRAVITY = 4
 HP = 5
 RESPAWN_TICKS = 5
 NUM_PLAYERS = 0
@@ -194,7 +194,7 @@ class Player(Entity):
         # if you are touching at least one platform, jump
         self.rect.y-=1
         if entities_hit:
-            self.dy = -32
+            self.dy = -28
 
     def drop(self):
         self.rect.y +=1
