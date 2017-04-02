@@ -4,6 +4,9 @@ import socket
 from entities.world import World
 from entities.player import Player
 from entities.platform import Platform
+import cProfile as profile
+commands = ["jump", "bang", "drop", "turn"]
+
 
 SPEED = 2
 
@@ -35,8 +38,8 @@ def main():
             answer = []
             try:
                 answer = world.clientsocket.recv(4096).decode("utf-8")
-                command = answer.split(' ' )
-                print(answer)
+                command = answer.split(',')
+                print(command)
             except Exception as e:
                 pass
             if answer:
@@ -46,6 +49,26 @@ def main():
                     world.add_players([player])
                     world.clientsocket.send(("player " + str(player.id)).encode("utf-8"))
                     print("new player added")
+                if command[0] == "command" and command[1] in world.playerIds:
+                    print(command)
+                    for word in command[2:]:
+                        if word in commands:
+
+                            playerId = command[1]
+                            player = world.playerIds[playerId]
+                            if word == "jump":
+                                player.jump()
+                            if word == "bang":
+                                player.shoot()
+                            if word == "drop":
+                                player.drop()
+                            if word == "turn":
+                                if player.direction == 1:
+                                    player.move_left()
+                                else:
+                                    player.move_right()
+
+                            #world.playerIds[command[1][0]].jump()
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_LEFT:

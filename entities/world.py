@@ -17,7 +17,7 @@ class World():
         self.platforms.add(*platforms)
         self.clientsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.clientsocket.connect(('localhost', 5000))
-        self.clientsocket.settimeout(.01)
+        self.clientsocket.settimeout(.05)
         message = 'hi to node from python'
         self.clientsocket.send(message.encode('utf-8'))
         self.playerIds = {" ":True}
@@ -32,7 +32,7 @@ class World():
         """
         self.players.add(*players)
         for player in players:
-            self.playerIds[player.id] = True
+            self.playerIds[player.id] = player
 
     def add_bullets(self,bullets):
         self.bullets.add(*bullets)

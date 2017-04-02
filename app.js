@@ -8,7 +8,7 @@ let loveSocket;
 let numPlayers = 0;
 let playerToSocket = {};
 let socketToPlayer = {};
-
+let commandSet = new Set(['jump', 'shoot', 'turn', 'drop'])
 //In this case we're running the app from Users/Documents/Programming/Node Starter, so that's the value of __dirname
 //Now we tell the app to append /views to that path
 app.set('views', path.join(__dirname, 'views'));
@@ -44,7 +44,7 @@ let loveServer = net.createServer(function(socket) {
       numPlayers++;
       console.log(Object.keys(playerToSocket))
       setTimeout(function(){
-        loveSocket.write("player " + numPlayers)
+        loveSocket.write("player," + numPlayers)
         // loveSocket.pipe(loveSocket)
         console.log('client socket connected')
       }, 100) 
@@ -56,7 +56,19 @@ let loveServer = net.createServer(function(socket) {
       
       socket.on('sent word', function(data){
         // TODO: still have to check if word is a command and send it to game engine
-        console.log(data)
+        let words = data['word'].split(' ')
+        let id = socketToPlayer[socket]
+        let commands = [];
+        for(let i = 0; i<words.length; i++){
+          if(commandSet.has(words[i])){
+            commands.push(words[i])
+          }
+        }
+        console.log("command," + id + "," + commands.toString())
+        if (commands.length > 0){
+          loveSocket.write("command " + id + " " + commands.toString())
+        }
+
       })
     });
 
