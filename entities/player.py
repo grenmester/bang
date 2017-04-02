@@ -1,4 +1,4 @@
-import pygame
+import pygame, os
 from entities.entity import Entity
 from entities.bullet import Bullet
 
@@ -14,7 +14,7 @@ class Player(Entity):
     """
     def __init__(self,x,y,speed,dy,width,height,world,hp=HP,gravity=GRAVITY,direction = 1,  playerId = None):
         # dx is speed (there is directionality to movement for the player)
-        super().__init__(x,y,speed,dy,width,height,world,color=(255,0,0))
+        super().__init__(x,y,speed,dy,width,height,world,color=(255,0,0),image_file=os.path.join('assets', 'char1.png'))
         global NUM_PLAYERS
         NUM_PLAYERS += 1
         self.start_x,self.start_y = x,y
@@ -159,7 +159,7 @@ class Player(Entity):
                 x = self.rect.x - 10
             elif self.direction > 0:
                 x = self.rect.x + self.rect.width
-            bullet = Bullet(x, self.rect.y + round(self.rect.height * .25), 4*self.direction, 0, 8, 3, self.world, 1, self)
+            bullet = Bullet(x, self.rect.y + round(self.rect.height * .6), 4*self.direction, 0, 8, 3, self.world, 1, self, self.direction)
             self.world.bullets.add(bullet)
             self.ammo_count -= 1
             self.sendAmmo()
@@ -190,13 +190,19 @@ class Player(Entity):
         """
         Moves the player left
         """
+        oldDirection = self.direction
         self.direction = -1
+        if not oldDirection == self.direction:
+            self.image = pygame.transform.flip(self.image, True, False)
 
     def move_right(self):
         """
         Move the player right
         """
+        oldDirection = self.direction
         self.direction = 1
+        if not oldDirection == self.direction:
+            self.image = pygame.transform.flip(self.image, True, False)
 
     def stop(self):
         """

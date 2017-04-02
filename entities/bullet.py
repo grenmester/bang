@@ -1,13 +1,15 @@
-import pygame
+import pygame, os
 from entities.entity import Entity
 
 class Bullet(Entity):
-    def __init__(self,x,y,dx,dy,width,height,world,damage,player):
-        super().__init__(x,y,dx,dy,width,height,world,color=(0,0,0))
+    def __init__(self,x,y,dx,dy,width,height,world,damage,player,direction):
+        super().__init__(x,y,dx,dy,width,height,world,color=(0,0,0),image_file=os.path.join('assets', 'bullet.png'))
         self.type = 'bullet'
         self.damage = damage
         # player who fired the bullet
         self.player = player
+        if direction == -1:
+            self.image = pygame.transform.flip(self.image, True, False)
 
     def update(self):
         self.rect.x += self.dx
