@@ -1,10 +1,12 @@
 import pygame
+import socket
 # constants
 GRAVITY = 1
 SPEED = 2
 HP = 5
 RESPAWN_TICKS = 5
 AMMO = 10
+
 
 class World():
     """
@@ -329,6 +331,15 @@ class Bullet(Entity):
 
 
 def main():
+    # socket stuff
+    clientsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    #clientsocket.settimeout(0.01)
+    clientsocket.connect(('localhost', 5000))
+    message = 'hi to node from python'
+    clientsocket.send(message.encode('utf-8'))
+    answer = clientsocket.recv(4096)
+    print(answer)
+    # socket stuff end
     width, height = 700, 500
     world = World(width,height)
     ground = Platform(0,height - 100,0,0,width,100,world,False,False)

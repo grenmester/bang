@@ -41,6 +41,9 @@ let loveServer = net.createServer(function(socket) {
 
     loveSocket.on("data", function (d) {
         d = d.toString()
+        console.log(d)
+        loveSocket.write('hi to python from node')
+        loveSocket.pipe(loveSocket)
         if(d == "exit\0") {
             console.log("exit");
             loveSocket.end();
@@ -59,6 +62,9 @@ let loveServer = net.createServer(function(socket) {
     });
 });
 
+
+loveServer.listen(5000, 'localhost')
+
 let io = require('socket.io')(server);
 
 //set our app listen on the port we specify
@@ -66,8 +72,6 @@ server.listen(app.get('port'), function(){
     //app.get('name') just gets name-value pair
     console.log('Project XXX working on port: ' + app.get('port'));
 })
-
-loveServer.listen(5000, 'localhost')
 
 //bang, zap, boom, jump
 io.on('connection', function (socket) {
