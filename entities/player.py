@@ -222,6 +222,15 @@ class Player(Entity):
         if not oldDirection == self.direction:
             self.image = pygame.transform.flip(self.image, True, False)
 
+    def turn(self):
+        """
+        Turn the opposite direction
+        """
+        if self.direction == 1:
+            self.move_left()
+        else:
+            self.move_right()
+
     def stop(self):
         """
         Stops player movement

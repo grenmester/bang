@@ -79,6 +79,8 @@ def main():
 
             # Player
             if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_t:
+                    player.turn()
                 if event.key == pygame.K_LEFT:
                     player.move_left()
                 if event.key == pygame.K_RIGHT:
@@ -109,10 +111,8 @@ def main():
                     cpu.reload()
 
             rand = random.randint(0,99)
-            if rand in range(1,10):
-                cpu.move_left()
-            if rand in range(11,20):
-                cpu.move_right()
+            if rand in range(1,15):
+                cpu.turn()
             if rand in range(21,35):
                 cpu.jump()
             if rand in range(41,60):
