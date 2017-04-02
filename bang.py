@@ -1,10 +1,8 @@
 import pygame
 
 from entities.world import World
-from entities.entity import Entity
 from entities.player import Player
 from entities.platform import Platform
-from entities.bullet import Bullet
 
 SPEED = 2
 
