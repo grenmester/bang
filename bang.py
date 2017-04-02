@@ -1,9 +1,10 @@
 import pygame
 from socketIO_client import SocketIO, LoggingNamespace
-
+from socketClientThread import SocketClientThread, ClientCommand, ClientReply
 from entities.world import World
 from entities.player import Player
 from entities.platform import Platform
+import Queue
 # import cProfile as profile
 
 
@@ -38,7 +39,10 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 done = True
-            world.clientsocket.wait(seconds=.01)
+
+            if pygame.time.get_ticks() % 5 == 0:
+                world.clientsocket.cmd_q.put(ClientCommand(ClientCommand.RECEIVE, (.1, "add-player")))
+                world.clientsocket.cmd_q.put(ClientCommand(ClientCommand.RECEIVE, (.1, "sent word")))
 
             # if answer:
             #     if command[0] == "player" and command[1][0] not in world.playerIds:
@@ -70,8 +74,32 @@ def main():
 
         world.update()
         world.draw()
-        clock.tick(40)
-        pygame.display.flip()
+        clock.tick(20)
 
+        pygame.display.flip()
+        if pygame.time.get_ticks() % 5 == 0:
+            try:
+                playerReply = world.clientsocket.reply_q.get(block=False)
+                wordReply = world.clientsocket.reply_q.get(block=False)
+                status = "SUCCESS" if reply.type == ClientReply.SUCCESS else "ERROR"
+                self.log('Client reply %s: %s' % (status, reply.data))
+                print(playerReply.data)
+                print(wordReply.data)
+            except Queue.Empty:
+                print("empty queue")
+                pass
+        if pygame.time.get_ticks() % 5 == 0:
+            try:
+                playerReply = world.clientsocket.reply_q.get(True)
+                wordReply = world.clientsocket.reply_q.get(True)
+                print(playerReply.data)
+                print(wordReply.data)
+            except Queue.Empty:
+                print("empty queue")
+                pass
+
+
+
+# profile.run('main()')
 if __name__ == '__main__':
     main()

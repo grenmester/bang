@@ -46,6 +46,10 @@ io2.on('connection', function(socket){
   socket.on("connected", function(data){
     console.log(data["data"])
   })
+  socket.on('test', function(data){
+    console.log(data)
+    socket.emit('test2', {2:2})
+  })
 })
 server2.listen('5001', function(){
   console.log('server 2 listening on port 5001')
@@ -60,7 +64,6 @@ server.listen(app.get('port'), function(){
     //app.get('name') just gets name-value pair
     console.log('Project XXX working on port: ' + app.get('port'));
 })
-
 
 io.on('connection', function (socket) {
   numPlayers++;

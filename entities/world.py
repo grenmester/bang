@@ -1,6 +1,7 @@
 import pygame
 from socketIO_client import SocketIO, LoggingNamespace
 from entities.player import Player
+from socketClientThread import SocketClientThread, ClientCommand, ClientReply
 
 
 SPEED = 2
@@ -26,11 +27,15 @@ class World():
         self.players.add(*players)
         self.bullets.add(*bullets)
         self.platforms.add(*platforms)
-        self.clientsocket = SocketIO('localhost', 5001, LoggingNamespace)
-        self.clientsocket.emit("connected", {"data": "Python socket connected"})
+        self.clientsocket = SocketClientThread()
+        self.clientsocket.start()
+        self.clientsocket.cmd_q.put(ClientCommand(ClientCommand.CONNECT, ('localhost', 5001)))
+        reply = self.clientsocket.reply_q.get(True)
+        # self.clientsocket = SocketIO('localhost', 5001, LoggingNamespace)
+        # self.clientsocket.emit("connected", {"data": "Python socket connected"})
         self.playerIds = {" ":True}
-        self.clientsocket.on('sent word', self.command_response)
-        self.clientsocket.on("add-player", self.add_players_wrapper)
+        # self.clientsocket.on('sent word', self.command_response)
+        # self.clientsocket.on("add-player", self.add_players_wrapper)
 
     #TODO
     # def endGame(self):
