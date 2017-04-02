@@ -1,4 +1,4 @@
-import pygame
+import pygame, random
 #import socket
 
 from entities.world import World
@@ -8,12 +8,9 @@ from entities.healthbar import Healthbar
 # import cProfile as profile
 commands = ["jump", "bang", "drop", "turn"]
 
-
 SPEED = 10
 
 def main():
-
-
 
     # socket stuff end
     width, height = 1200, 600
@@ -26,11 +23,11 @@ def main():
     platform5 = Platform(world.width//2 + 100 ,height - 400,2,0,200,20,world, True, True, world.width//2, world.width)
     world.add_platforms([ground,platform1, platform2, platform3, platform4, platform5])
 
-    player = Player(width//2, height//2,SPEED,0,32,32,world,playerId=1, weapon='bazooka', image_file='assets/char1.png')
-    player2 = Player(width//2, height//2,SPEED,0,32,32,world,playerId=2, weapon='laser', image_file='assets/char2.png')
+    player = Player(width//2, height//2,SPEED,0,32,32,world,playerId=1, weapon=random.choice(['revolver','bazooka','laser']), image_file='assets/char1.png')
+    cpu = Player(width//2, height//2,SPEED,0,32,32,world,playerId=2, weapon=random.choice(['revolver','bazooka','laser']), image_file='assets/char2.png')
     healthbar = Healthbar(width//2, height//2, 0, 0, 80, 16, world, player)
-    healthbar2 = Healthbar(width//2, height//2, 0, 0, 80, 16, world, player2)
-    world.add_players([player, player2])
+    healthbar2 = Healthbar(width//2, height//2, 0, 0, 80, 16, world, cpu)
+    world.add_players([player, cpu])
     world.add_healthbars([healthbar, healthbar2])
 
     pygame.init()
@@ -45,6 +42,7 @@ def main():
             if event.type == pygame.QUIT:
                 done = True
             answer = []
+
             #try:
             #    answer = world.clientsocket.recv(4096).decode("utf-8")
             #    command = answer.split(',')
@@ -79,6 +77,7 @@ def main():
 
                             #world.playerIds[command[1][0]].jump()
 
+            # Player
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_LEFT:
                     player.move_left()
@@ -93,19 +92,36 @@ def main():
                     player.drop()
                 if event.key == pygame.K_RSHIFT:
                     player.reload()
+
+                # CPU
                 if event.key == pygame.K_a:
-                    player2.move_left()
+                    cpu.move_left()
                 if event.key == pygame.K_d:
-                    player2.move_right()
+                    cpu.move_right()
                 if event.key == pygame.K_w:
-                    player2.jump()
+                    cpu.jump()
                 if event.key == pygame.K_s:
-                    player2.drop()
+                    cpu.drop()
                 if event.key == pygame.K_q:
-                    player2.shoot()
-                    player2.attempt_respawn()
+                    cpu.shoot()
+                    cpu.attempt_respawn()
                 if event.key == pygame.K_r:
-                    player2.reload()
+                    cpu.reload()
+
+            rand = random.randint(0,99)
+            if rand in range(1,10):
+                cpu.move_left()
+            if rand in range(11,20):
+                cpu.move_right()
+            if rand in range(21,35):
+                cpu.jump()
+            if rand in range(41,60):
+                cpu.drop()
+            if rand in range(61,80) or not cpu.alive:
+                cpu.shoot()
+                cpu.attempt_respawn()
+            if rand in range(81,100):
+                cpu.reload()
 
         world.update()
         world.draw()
