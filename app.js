@@ -42,21 +42,29 @@ let loveServer = net.createServer(function(socket) {
     loveSocket.on("data", function (d) {
         d = d.toString()
         console.log(d)
+        let split = d.split(" ")
         loveSocket.write('hi to python from node')
         loveSocket.pipe(loveSocket)
-        if(d == "exit\0") {
+        if(split[0] == "end") {
             console.log("exit");
             loveSocket.end();
             server.close();
         }
-        else if (d[0] == "3"){
-            let ammoLeft = d.slice(1, d.length)
+        else if (split[0] == 'ammo'){
+            let id = split[1]
+            let ammoLeft = split[2]
             // TODO: identify player numbers
-            playerToSocket[1].emit('ammo', {ammoLeft: ammoLeft})
+            playerToSocket[id].emit('ammo', {ammoLeft: ammoLeft})
         }
-        else if (d[0] == "2"){
-            let healthLeft = d.slice(1, d.length)
-            playerToSocket[1].emit('health', {healthLeft: healthLeft})
+        else if (split[0] == "health"){
+            let id = split[1]
+            let healthLeft = split[2]
+            // TODO: identify player numbers
+            playerToSocket[id].emit('health', {healthLeft: healthLeft})
+        } else if (split[0] == "color"){
+            let id = split[1]
+            let color = split[2]
+            playerToSocket[id].emit('color', {color: color})
         }
 
     });

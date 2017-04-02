@@ -6,6 +6,7 @@ SPEED = 2
 HP = 5
 RESPAWN_TICKS = 5
 AMMO = 10
+NUM_PLAYERS = 0
 
 
 class World():
@@ -19,10 +20,17 @@ class World():
         self.bullets = pygame.sprite.Group()
         self.platforms = pygame.sprite.Group()
         self.screen = pygame.display.set_mode([width,height])
-
         self.players.add(*players)
         self.bullets.add(*bullets)
         self.platforms.add(*platforms)
+        self.clientsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.clientsocket.connect(('localhost', 5000))
+        message = 'hi to node from python'
+        self.clientsocket.send(message.encode('utf-8'))
+
+    def endGame(self):
+        msg = 'end'
+        self.clientsocket.send(msg.encode('utf-8'))
 
     def add_players(self,players):
         """
@@ -80,6 +88,8 @@ class Player(Entity):
     def __init__(self,x,y,speed,dy,width,height,world,hp=HP,gravity=GRAVITY,direction = 1):
         # dx is speed (there is directionality to movement for the player)
         super().__init__(x,y,speed,dy,width,height,world,color=(255,0,0))
+        global NUM_PLAYERS
+        NUM_PLAYERS += 1
         self.start_x,self.start_y = x,y
         self.type = 'player'
         self.hp = hp
@@ -90,6 +100,19 @@ class Player(Entity):
         self.direction = direction
         self.dropping = False
         self.alive = True
+        self.id = NUM_PLAYERS
+
+    def sendColor(self):
+        msg = 'color ' + str(self.id) + ' ' + str(self.color)
+        self.world.clientsocket.send(msg.encode('utf-8'))
+
+    def sendHealth(self):
+        msg = 'health ' + str(self.id) + ' ' + str(max(0, self.hp))
+        self.world.clientsocket.send(msg.encode('utf-8'))
+
+    def sendAmmo(self):
+        msg = 'ammo ' + str(self.id) + ' ' + str(max(0, self.ammo_count))
+        self.world.clientsocket.send(msg.encode('utf-8'))
 
     def update(self):
         """
@@ -188,6 +211,7 @@ class Player(Entity):
         Damages player; returns True if player killed, False otherwise
         """
         self.hp -= damage
+        self.sendHealth()
         if self.hp < 0:
             self.kill()
             self.alive = False
@@ -207,6 +231,7 @@ class Player(Entity):
             bullet = Bullet(x, self.rect.y + round(self.rect.height * .25), 4*self.direction, 0, 8, 3, self.world, 1, self)
             self.world.bullets.add(bullet)
             self.ammo_count -= 1
+            self.sendAmmo()
 
     def reload(self):
         self.ammo_count = AMMO
@@ -329,19 +354,12 @@ class Bullet(Entity):
             self.kill()
 
 
-
 def main():
-    # socket stuff
-    clientsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    #clientsocket.settimeout(0.01)
-    clientsocket.connect(('localhost', 5000))
-    message = 'hi to node from python'
-    clientsocket.send(message.encode('utf-8'))
-    answer = clientsocket.recv(4096)
-    print(answer)
     # socket stuff end
     width, height = 700, 500
     world = World(width,height)
+    answer = world.clientsocket.recv(4096)
+    print(answer)
     ground = Platform(0,height - 100,0,0,width,100,world,False,False)
     platform1 = Platform(100,height - 200,2,0,200,20,world, True, True, 0, world.width//2)
     platform2 = Platform(world.width//2 + 100 ,height - 200,2,0,200,20,world, True, True, world.width//2, world.width)

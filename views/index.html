@@ -87,6 +87,8 @@
 <img id="health0" src="../images/heart.png">
 <img id="health1" src="../images/heart.png">
 <img id="health2" src="../images/heart.png">
+<img id="health3" src="../images/heart.png">
+<img id="health4" src="../images/heart.png">
 
 <div id="info">
   <p id="info_start">Click on the microphone icon and begin speaking.</p>
@@ -125,24 +127,25 @@
 <button id="shoot" onclick="shoot()">Shoot</button>
 <button id="die" onclick="die()">Die</button>
 <script>
-var health = 3
+var health = 5
 var ammo = 10
 $(document).ready(function() {
     $('#player-info').text("Health: " + health + ", Ammo: " + ammo);
     startButton(1)
   });
-function shoot(){
-  if(ammo >0){
-    ammo -= 1
-    $('#player-info').text("Health: " + health + ", Ammo: " + ammo)
-  }
+function shoot(ammoLeft){
+  ammo = ammoLeft
+  $('#player-info').text("Health: " + health + ", Ammo: " + ammo)
+  
 }
-function die(){
-  if(health > 0){
-    health -= 1
-    $('#health'+health).remove()
-    $('#player-info').text("Health: " + health + ", Ammo: " + ammo)
+function die(healthLeft){
+  prevHealth = health
+  health = healthLeft
+  for(let i =0 ; i < prevHealth - healthLeft; i++){
+      $('#health'+health).remove()
   }
+  $('#player-info').text("Health: " + health + ", Ammo: " + ammo)
+  
 }
 var socket = io('http://localhost:3000');
 var langs =
@@ -404,10 +407,12 @@ function showButtons(style) {
 }
 
 socket.on('ammo', function(data){
-  console.log(data)
+  console.log('shot ammo!')
+  shoot(data[ammo])
 })
 
 socket.on('health', function(data){
-  console.log(data)
+  console.log('lost health!')
+  die(data[health])
 })
 </script>
