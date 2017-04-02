@@ -90,8 +90,8 @@ def main():
                 pass
         if pygame.time.get_ticks() % 5 == 0:
             try:
-                playerReply = world.clientsocket.reply_q.get(True)
-                wordReply = world.clientsocket.reply_q.get(True)
+                playerReply = world.clientsocket.reply_q.get(False)
+                wordReply = world.clientsocket.reply_q.get(False)
                 print(playerReply.data)
                 print(wordReply.data)
             except Queue.Empty:

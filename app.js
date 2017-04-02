@@ -8,6 +8,7 @@ let numPlayers = 0;
 let playerToSocket = {};
 let socketToPlayer = {};
 let commandSet = new Set(['jump', 'shoot', 'turn', 'drop'])
+let fs = require('fs')
 //In this case we're running the app from Users/Documents/Programming/Node Starter, so that's the value of __dirname
 //Now we tell the app to append /views to that path
 app.set('views', path.join(__dirname, 'views'));
@@ -38,10 +39,20 @@ io2.on('connection', function(socket){
     console.log(data)
   })
   socket.on('health', function(data){
-    playerToSocket[data['id']].emit('health', {'healthLeft': data['health']})
+    //playerToSocket[data['id']].emit('health', {'healthLeft': data['health']})
+    let string = String({"id": data['id'], "healthLeft": data['health']})
+    fs.appendFile('health.txt', string, function(err){
+      if(err){
+        return console.error(err)
+      }
+    })
   })
   socket.on('ammo', function(data){
-    playerToSocket[data['id'].emit('ammo,', {'ammo': data['ammo']})]
+    let string = String({"id": data['id'], "healthLeft": data['ammo']})
+    fs.appendFile('ammo.txt', string, function(err){
+      console.error(err)
+    })
+    //playerToSocket[data['id'].emit('ammo,', {'ammo': data['ammo']})]
   })
   socket.on("connected", function(data){
     console.log(data["data"])
@@ -66,8 +77,14 @@ server.listen(app.get('port'), function(){
 })
 
 io.on('connection', function (socket) {
+  let socket2 = socket
   numPlayers++;
   console.log(Object.keys(playerToSocket))
+  let string1 = JSON.stringify({"id": numPlayers})
+  console.log(string1)
+  fs.appendFile('addPlayer.txt', string1, function(err){
+    console.error(err)
+  })
   socket2.emit("add-player", {'id': numPlayers})
   playerToSocket[numPlayers] = socket;
   socketToPlayer[socket] = numPlayers;
@@ -86,6 +103,11 @@ io.on('connection', function (socket) {
     }
     console.log("commands " + commands)
     if (commands.length > 0){
+      let string2 = JSON.stringify({"id": data['id'], "commands": commands})
+
+      fs.appendFile('command.txt', string2, function(err){
+        console.error(err)
+      })
       socket2.emit("command", {'id':id, 'commands': commands})
     }
 
