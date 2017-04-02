@@ -95,33 +95,33 @@ def main():
                 if event.key == pygame.K_RSHIFT:
                     player.reload()
 
-        with open('input.txt', 'r') as input_command:
-            # read the last line of the file
-            command = input_command.readlines()[-1]
+        #with open('input.txt', 'r') as input_command:
+        #    # read the last line of the file
+        #    command = input_command.readlines()[-1]
 
-            if "turn" in command:
-                player.turn()
-            if "jump" in command:
-                player.jump()
-            if "drop" in command:
-                player.drop()
-            if "shoot" in command:
-                player.shoot()
-                player.attempt_respawn()
-            if "reload" in command:
-                player.reload()
+        #    if "turn" in command:
+        #        player.turn()
+        #    if "jump" in command:
+        #        player.jump()
+        #    if "drop" in command:
+        #        player.drop()
+        #    if "shoot" in command:
+        #        player.shoot()
+        #        player.attempt_respawn()
+        #    if "reload" in command:
+        #        player.reload()
 
         rand = random.randint(0,99)
-        if rand in range(1,15):
+        if rand in range(1,10):
             cpu.turn()
-        if rand in range(21,35):
+        if rand in range(21,30):
             cpu.jump()
         if rand in range(41,60):
             cpu.drop()
         if rand in range(61,80) or not cpu.alive:
             cpu.shoot()
             cpu.attempt_respawn()
-        if rand in range(81,100):
+        if rand in range(81,95):
             cpu.reload()
 
         world.update()
