@@ -87,16 +87,16 @@ server.listen(app.get('port'), function(){
 
 //bang, zap, boom, jump
 io.on('connection', function (socket) {
-  numPlayers++;
-  playerToSocket[numPlayers] = socket;
-  socketToPlayer[socket] = numPlayers;
-  //TODO: get all players to join rooms
-  socket.join('playerRoom');
-  console.log('client socket connected')
-  loveSocket.write("player " + numPlayers)
-  loveSocket.pipe(loveSocket)
-  socket.on('sent word', function(data){
-    // TODO: still have to check if word is a command and send it to game engine
-    console.log(data)
-  })
+  // numPlayers++;
+  // playerToSocket[numPlayers] = socket;
+  // socketToPlayer[socket] = numPlayers;
+  // //TODO: get all players to join rooms
+  // socket.join('playerRoom');
+  // console.log('client socket connected')
+  // loveSocket.write("player " + numPlayers)
+  // loveSocket.pipe(loveSocket)
+  // socket.on('sent word', function(data){
+  //   // TODO: still have to check if word is a command and send it to game engine
+  //   console.log(data)
+  // })
 });

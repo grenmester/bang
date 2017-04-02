@@ -6,22 +6,26 @@ GRAVITY = 1
 HP = 5
 RESPAWN_TICKS = 5
 NUM_PLAYERS = 0
-AMMO = 8
+
+WEAPONS = {'revolver':{'damage': 1, 'max_ammo': 6, 'speed': 4, 'file_name': 'assets/revolver.png', 'bullet_file_name': 'assets/bullet.png'},
+            'bazooka':{'damage': 2, 'max_ammo': 2, 'speed': 3.5, 'file_name': 'assets/bazooka.png', 'bullet_file_name': 'assets/rocket.png'},
+            'laser':{'damage': 1, 'max_ammo': 3, 'speed': 5, 'file_name': 'assets/laser_rifle.png', 'bullet_file_name': 'assets/laser.png'}}
 
 class Player(Entity):
     """
     Player class
     """
-    def __init__(self,x,y,speed,dy,width,height,world,hp=HP,gravity=GRAVITY,direction = 1):
+    def __init__(self,x,y,speed,dy,width,height,world,weapon='revolver',hp=HP,gravity=GRAVITY,direction = 1,image_file=None):
         # dx is speed (there is directionality to movement for the player)
-        super().__init__(x,y,speed,dy,width,height,world,color=(255,0,0))
+        super().__init__(x,y,speed,dy,width,height,world,color=(255,0,0),image_file=image_file)
         global NUM_PLAYERS
         NUM_PLAYERS += 1
         self.start_x,self.start_y = x,y
         self.type = 'player'
         self.hp = hp
-        self.weapon = None
-        self.ammo_count = AMMO
+        self.weapon = weapon
+        self.max_ammo = WEAPONS[weapon]['max_ammo']
+        self.ammo_count = self.max_ammo
         self.gravity = gravity
         self.speed = speed
         self.direction = direction
@@ -139,7 +143,7 @@ class Player(Entity):
         Damages player; returns True if player killed, False otherwise
         """
         self.hp -= damage
-        self.sendHealth()
+        # self.sendHealth()
         if self.hp < 0:
             self.kill()
             self.alive = False
@@ -156,13 +160,21 @@ class Player(Entity):
                 x = self.rect.x - 10
             elif self.direction > 0:
                 x = self.rect.x + self.rect.width
-            bullet = Bullet(x, self.rect.y + round(self.rect.height * .25), 4*self.direction, 0, 8, 3, self.world, 1, self)
+            # get bullet values
+            bullet_speed = WEAPONS[self.weapon]['speed']
+            bullet_file_name = WEAPONS[self.weapon]['bullet_file_name']
+            bullet_damage = WEAPONS[self.weapon]['damage']
+            args = {'x':x, 'y': self.rect.y + round(self.rect.height * .25),
+                    'dx':bullet_speed*self.direction, 'dy':0,
+                    'width':None, 'height':None, 'world':self.world, 'weapon':self.weapon,
+                    'damage':bullet_damage,'player':self, 'image_file':bullet_file_name}
+            bullet = Bullet(**args)
             self.world.bullets.add(bullet)
             self.ammo_count -= 1
-            self.sendAmmo()
+            # self.sendAmmo()
 
     def reload(self):
-        self.ammo_count = AMMO
+        self.ammo_count = self.max_ammo
 
     def jump(self):
         """
@@ -206,7 +218,7 @@ class Player(Entity):
         self.rect.x = x
         self.rect.y = y
         self.alive = True
-        self.ammo_count = AMMO
+        self.ammo_count = max_ammo
         self.world.add_players([self])
 
     def attempt_respawn(self):
@@ -215,8 +227,10 @@ class Player(Entity):
             if self.ticks_until_respawn == 0:
                 self.spawn(self.start_x,self.start_y,HP)
 
-    def restore_ammo(self,ammo=AMMO):
+    def reload(self,ammo=None):
+        # if no argument given, increment by max_ammo
+        if not ammo:
+            ammo = self.max_ammo
         # add ammo but don't exceed the max
         self.ammo_count += ammo
-        if self.ammo_count > AMMO:
-            self.ammo_count = AMMO
+        self.ammmo_count = min(self.ammo_count,self.max_ammo)

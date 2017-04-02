@@ -2,9 +2,10 @@ import pygame
 from entities.entity import Entity
 
 class Bullet(Entity):
-    def __init__(self,x,y,dx,dy,width,height,world,damage,player):
-        super().__init__(x,y,dx,dy,width,height,world,color=(0,0,0))
+    def __init__(self,x,y,dx,dy,width,height,world,weapon,damage,player,image_file=None):
+        super().__init__(x,y,dx,dy,width,height,world,color=(0,0,0),image_file=image_file)
         self.type = 'bullet'
+        self.weapon = weapon
         self.damage = damage
         # player who fired the bullet
         self.player = player
@@ -23,7 +24,9 @@ class Bullet(Entity):
             # damage all players if you intersect instead of undefined behavior
             for player in players_hit:
                 if player != self.player:
-                    player.damage(self.damage)
+                    opponent_killed = player.damage(self.damage)
+                    if opponent_killed:
+                        self.player.reload()
         # check for bullet collisions
         bullets_hit = pygame.sprite.spritecollide(self, self.world.bullets, False)
         if bullets_hit:
