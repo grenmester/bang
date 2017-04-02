@@ -20,9 +20,7 @@ def main():
     platform4 = Platform(100,height - 400,2,0,200,20,world, True, True, 0, world.width//2)
     platform5 = Platform(world.width//2 + 100 ,height - 400,2,0,200,20,world, True, True, world.width//2, world.width)
     world.add_platforms([ground,platform1, platform2, platform3, platform4, platform5])
-    player = Player(width//2, height//2,SPEED,0,32,32,world,weapon='laser',image_file='assets/char1.png')
-    player2 = Player(0,0,SPEED,0,32,32,world,weapon='bazooka',image_file='assets/char1.png')
-    world.add_players([player, player2])
+
     pygame.init()
     pygame.display.set_caption('Bang!')
 
@@ -34,11 +32,20 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 done = True
+            answer = []
             try:
-                answer = world.clientsocket.recv(4096)
+                answer = world.clientsocket.recv(4096).decode("utf-8")
+                command = answer.split(' ' )
                 print(answer)
             except Exception as e:
-                print(e)
+                pass
+            if answer:
+                if command[0] == "player" and command[1][0] not in world.playerIds:
+                    print(world.playerIds.keys())
+                    player = Player(width//2, height//2,SPEED,0,32,32,world, playerId =  command[1][0])
+                    world.add_players([player])
+                    world.clientsocket.send(("player " + str(player.id)).encode("utf-8"))
+                    print("new player added")
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_LEFT:
@@ -53,20 +60,20 @@ def main():
                 if event.key == pygame.K_DOWN:
                     player.drop()
                 if event.key == pygame.K_RSHIFT:
-                    player.reload()
-                if event.key == pygame.K_a:
-                    player2.move_left()
-                if event.key == pygame.K_d:
-                    player2.move_right()
-                if event.key == pygame.K_w:
-                    player2.jump()
-                if event.key == pygame.K_s:
-                    player2.drop()
-                if event.key == pygame.K_q:
-                    player2.shoot()
-                    player2.attempt_respawn()
-                if event.key == pygame.K_r:
-                    player2.reload()
+                    player.restore_ammo()
+                # if event.key == pygame.K_a:
+                #     player2.move_left()
+                # if event.key == pygame.K_d:
+                #     player2.move_right()
+                # if event.key == pygame.K_w:
+                #     player2.jump()
+                # if event.key == pygame.K_s:
+                #     player2.drop()
+                # if event.key == pygame.K_q:
+                #     player2.shoot()
+                #     player2.attempt_respawn()
+                # if event.key == pygame.K_r:
+                #     player2.restore_ammo()
 
         world.update()
         world.draw()

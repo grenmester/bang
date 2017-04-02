@@ -31,7 +31,10 @@ class Player(Entity):
         self.direction = direction
         self.dropping = False
         self.alive = True
-        self.id = NUM_PLAYERS
+        if playerId:
+            self.id = playerId
+        else:
+            self.id = NUM_PLAYERS
         # self.world.clientsocket.send(("player " + str(self.id)).encode("utf-8"))
 
     def sendColor(self):
