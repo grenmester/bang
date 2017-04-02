@@ -37,7 +37,7 @@
   }
   .final {
     color: black;
-    padding-right: 3px; 
+    padding-right: 3px;
   }
   .interim {
     color: gray;
@@ -84,11 +84,9 @@
 </style>
 <h1 class="center" id="headline">Bang</h1>
 <p id="player-info">Health: 3, Ammo: 10</p>
-<img id="health0" src="../images/heart.png">
-<img id="health1" src="../images/heart.png">
-<img id="health2" src="../images/heart.png">
-<img id="health3" src="../images/heart.png">
-<img id="health4" src="../images/heart.png">
+<img id="hearts" src="../images/hearts5.png">
+<br>
+<img id="bullets" src="../images/bullets6.png">
 
 <div id="info">
   <p id="info_start">Click on the microphone icon and begin speaking.</p>
@@ -128,24 +126,26 @@
 <button id="die" onclick="die()">Die</button>
 <script>
 var health = 5
+var maxHealth = health
 var ammo = 10
+var maxAmmo = ammo
 $(document).ready(function() {
     $('#player-info').text("Health: " + health + ", Ammo: " + ammo);
     startButton(1)
   });
 function shoot(ammoLeft){
   ammo = ammoLeft
+  ammo = 2
+  $('#bullets').attr('src', '../images/bullets'+health+'.png')
   $('#player-info').text("Health: " + health + ", Ammo: " + ammo)
-  
+
 }
 function die(healthLeft){
-  prevHealth = health
   health = healthLeft
-  for(let i =0 ; i < prevHealth - healthLeft; i++){
-      $('#health'+health).remove()
-  }
+  health = 2
+  $('#hearts').attr('src', '../images/hearts'+health+'.png')
   $('#player-info').text("Health: " + health + ", Ammo: " + ammo)
-  
+
 }
 var socket = io('http://localhost:3000');
 var langs =
@@ -304,7 +304,7 @@ if (!('webkitSpeechRecognition' in window)) {
         interim_transcript += event.results[i][0].transcript;
       }
     }
-    
+
     // console.log(event.results)
     final_transcript = capitalize(final_transcript);
     final_span.innerHTML = linebreak(final_transcript);
