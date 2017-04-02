@@ -8,8 +8,6 @@ class Entity(pygame.sprite.Sprite):
         super().__init__()
         self.dx = dx
         self.dy = dy
-        self.width = width
-        self.height = height
         self.world = world
         self.type = None
 

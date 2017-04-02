@@ -8,7 +8,7 @@ let loveSocket;
 let numPlayers = 0;
 let playerToSocket = {};
 let socketToPlayer = {};
-
+let commandSet = new Set(['jump', 'shoot', 'turn', 'drop'])
 //In this case we're running the app from Users/Documents/Programming/Node Starter, so that's the value of __dirname
 //Now we tell the app to append /views to that path
 app.set('views', path.join(__dirname, 'views'));
@@ -44,7 +44,7 @@ let loveServer = net.createServer(function(socket) {
       numPlayers++;
       console.log(Object.keys(playerToSocket))
       setTimeout(function(){
-        loveSocket.write("player " + numPlayers)
+        loveSocket.write("player," + numPlayers)
         // loveSocket.pipe(loveSocket)
         console.log('client socket connected')
       }, 100) 
@@ -56,7 +56,19 @@ let loveServer = net.createServer(function(socket) {
       
       socket.on('sent word', function(data){
         // TODO: still have to check if word is a command and send it to game engine
-        console.log(data)
+        let words = data['word'].split(' ')
+        let id = socketToPlayer[socket]
+        let commands = [];
+        for(let i = 0; i<words.length; i++){
+          if(commandSet.has(words[i])){
+            commands.push(words[i])
+          }
+        }
+        console.log("command," + id + "," + commands.toString())
+        if (commands.length > 0){
+          loveSocket.write("command " + id + " " + commands.toString())
+        }
+
       })
     });
 
@@ -94,6 +106,21 @@ let loveServer = net.createServer(function(socket) {
 
 loveServer.listen(5000, 'localhost')
 
+let server2 = require('http').createServer(app);
+let io2 = require('socket.io')(server2)
+io2.on('connection', function(socket){
+  socket.on('hi-event', function(data){
+    console.log(data)
+    socket.emit('aaa', {2:2})
+  })
+  socket.on("connected", function(data){
+    console.log(data["data"])
+  })
+})
+server2.listen('5001', function(){
+  console.log('server 2 listening on port 5001')
+})
+
 let io = require('socket.io')(server);
 
 //set our app listen on the port we specify
@@ -101,3 +128,19 @@ server.listen(app.get('port'), function(){
     //app.get('name') just gets name-value pair
     console.log('Project XXX working on port: ' + app.get('port'));
 })
+
+//bang, zap, boom, jump
+io.on('connection', function (socket) {
+  // numPlayers++;
+  // playerToSocket[numPlayers] = socket;
+  // socketToPlayer[socket] = numPlayers;
+  // //TODO: get all players to join rooms
+  // socket.join('playerRoom');
+  // console.log('client socket connected')
+  // loveSocket.write("player " + numPlayers)
+  // loveSocket.pipe(loveSocket)
+  // socket.on('sent word', function(data){
+  //   // TODO: still have to check if word is a command and send it to game engine
+  //   console.log(data)
+  // })
+});
