@@ -61,7 +61,7 @@ class Entity(pygame.sprite.Sprite):
 
         if image_file:
             self.image = pygame.image.load(image_file)
-        else:
+        else:   
             self.image = pygame.Surface([width, height])
             self.image.fill(color)
         # generate the hitbox
@@ -238,14 +238,21 @@ class Player(Entity):
 
 class Platform(Entity):
     # if you want moving platforms, specify here minimum and maximum x and y values
-    def __init__(self,x,y,dx,dy,width,height,world,passthrough=True,dropdown=True):
+    def __init__(self,x,y,dx,dy,width,height,world,passthrough=True,dropdown=True, min_x = 0, max_x = 700):
         super().__init__(x,y,dx,dy,width,height,world,color=(255,0,255))
         self.type = 'platform'
         self.passthrough = passthrough
         self.dropdown = dropdown
+        self.min_x = min_x
+        self.max_x = max_x
 
     def update(self):
         self.rect.x += self.dx
+        if self.rect.x < self.min_x:
+            self.dx *= -1
+            self.rect.x = self.min_x + 1
+        if self.rect.x + self.rect.width > self.max_x:
+            self.dx *= -1
         self.rect.x %= self.world.width
         self.rect.y += self.dy
         self.rect.y %= self.world.height
@@ -293,8 +300,12 @@ def main():
     width, height = 700, 500
     world = World(width,height)
     ground = Platform(0,height - 100,0,0,width,100,world,False,False)
-    platform1 = Platform(100,height - 200,4,0,100,20,world)
-    world.add_platforms([ground,platform1])
+    platform1 = Platform(100,height - 200,2,0,200,20,world, True, True, 0, world.width//2)
+    platform2 = Platform(world.width//2 + 100 ,height - 200,2,0,200,20,world, True, True, world.width//2, world.width)
+    platform3 = Platform(world.width//2 - 250, height - 300, 0, 0, 500, 20, world, True, True)
+    platform4 = Platform(100,height - 400,2,0,200,20,world, True, True, 0, world.width//2)
+    platform5 = Platform(world.width//2 + 100 ,height - 400,2,0,200,20,world, True, True, world.width//2, world.width)
+    world.add_platforms([ground,platform1, platform2, platform3, platform4, platform5])
     player = Player(width//2, height//2,SPEED,0,32,32,world)
     player2 = Player(0,0,SPEED,0,32,32,world)
     world.add_players([player, player2])
