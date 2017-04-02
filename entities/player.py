@@ -1,9 +1,12 @@
 import pygame
 from entities.entity import Entity
+from entities.bullet import Bullet
 
 GRAVITY = 1
 HP = 5
 RESPAWN_TICKS = 5
+NUM_PLAYERS = 0
+AMMO = 8
 
 class Player(Entity):
     """
@@ -12,16 +15,32 @@ class Player(Entity):
     def __init__(self,x,y,speed,dy,width,height,world,hp=HP,gravity=GRAVITY,direction = 1):
         # dx is speed (there is directionality to movement for the player)
         super().__init__(x,y,speed,dy,width,height,world,color=(255,0,0))
+        global NUM_PLAYERS
+        NUM_PLAYERS += 1
         self.start_x,self.start_y = x,y
         self.type = 'player'
         self.hp = hp
         self.weapon = None
-        self.ammo_count = None
+        self.ammo_count = AMMO
         self.gravity = gravity
         self.speed = speed
         self.direction = direction
         self.dropping = False
         self.alive = True
+        self.id = NUM_PLAYERS
+        # self.world.clientsocket.send(("player " + str(self.id)).encode("utf-8"))
+
+    def sendColor(self):
+        msg = 'color ' + str(self.id) + ' ' + str(self.color)
+        self.world.clientsocket.send(msg.encode('utf-8'))
+
+    def sendHealth(self):
+        msg = 'health ' + str(self.id) + ' ' + str(max(0, self.hp))
+        self.world.clientsocket.send(msg.encode('utf-8'))
+
+    def sendAmmo(self):
+        msg = 'ammo ' + str(self.id) + ' ' + str(max(0, self.ammo_count))
+        self.world.clientsocket.send(msg.encode('utf-8'))
 
     def update(self):
         """
@@ -36,16 +55,13 @@ class Player(Entity):
             self.rect.x %= self.world.width
             self.rect.y += self.dy
             self.rect.y += 1
-            if self.rect.y > self.world.height:
-                self.rect.y%= self.world.height
+            self.rect.y %= self.world.height
             self.dy += self.gravity
 
             platforms_hit = pygame.sprite.spritecollide(self, self.world.platforms, False)
             if not platforms_hit:
                 self.dropping = False
         else:
-            self.check_moving_platform()
-
             self.rect.x += self.speed * self.direction
             # first check for collisions in moving without wrapping
             platforms_hit = pygame.sprite.spritecollide(self, self.world.platforms, False)
@@ -66,6 +82,7 @@ class Player(Entity):
                     self.resolve_x_platform_collision(hard_platforms)
 
 
+            self.rect.x %= self.world.width
 
             self.rect.y += self.dy
             # decrement velocity by acceleration
@@ -88,9 +105,7 @@ class Player(Entity):
                 else:
                     self.resolve_y_platform_collision(hard_platforms)
 
-            self.rect.x %= self.world.width
-            if self.rect.y > self.world.height:
-                self.rect.y%= self.world.height
+            self.rect.y %= self.world.height
 
 
     def resolve_x_platform_collision(self, platforms_list):
@@ -119,29 +134,21 @@ class Player(Entity):
             # if you collide, set dy to 0
             self.dy = 0
 
-    def check_moving_platform(self):
-        self.rect.y += 1
-        platforms_hit = pygame.sprite.spritecollide(self, self.world.platforms, False)
-        self.rect.y -= 1
-        if platforms_hit:
-            if any([x.dx!= 0 for x in platforms_hit]):
-                print("on moving platform")
-                print(platforms_hit[0].dx)
-                self.dx = self.direction * self.speed + platforms_hit[0].dx
-            else:
-                self.dx = self.direction * self.speed
-        else:
-            self.dx = self.direction * self.speed
-
     def damage(self,damage):
+        """
+        Damages player; returns True if player killed, False otherwise
+        """
         self.hp -= damage
+        self.sendHealth()
         if self.hp < 0:
             self.kill()
             self.alive = False
             self.ticks_until_respawn = RESPAWN_TICKS
+            return True
+        return False
 
     def shoot(self):
-        if self.alive:
+        if self.alive and self.ammo_count > 0:
             # create a hardcoded bullet
             x = self.rect.x
             # lead the bullet differently depending on what direction you're facing
@@ -151,6 +158,11 @@ class Player(Entity):
                 x = self.rect.x + self.rect.width
             bullet = Bullet(x, self.rect.y + round(self.rect.height * .25), 4*self.direction, 0, 8, 3, self.world, 1, self)
             self.world.bullets.add(bullet)
+            self.ammo_count -= 1
+            self.sendAmmo()
+
+    def reload(self):
+        self.ammo_count = AMMO
 
     def jump(self):
         """
@@ -194,6 +206,7 @@ class Player(Entity):
         self.rect.x = x
         self.rect.y = y
         self.alive = True
+        self.ammo_count = AMMO
         self.world.add_players([self])
 
     def attempt_respawn(self):
@@ -201,3 +214,9 @@ class Player(Entity):
             self.ticks_until_respawn -= 1
             if self.ticks_until_respawn == 0:
                 self.spawn(self.start_x,self.start_y,HP)
+
+    def restore_ammo(self,ammo=AMMO):
+        # add ammo but don't exceed the max
+        self.ammo_count += ammo
+        if self.ammo_count > AMMO:
+            self.ammo_count = AMMO

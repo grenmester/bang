@@ -41,23 +41,41 @@ let loveServer = net.createServer(function(socket) {
 
     loveSocket.on("data", function (d) {
         d = d.toString()
-        if(d == "exit\0") {
+        console.log(d)
+        let split = d.split(" ")
+        loveSocket.write('hi to python from node')
+        loveSocket.pipe(loveSocket)
+        if(split[0] == "end") {
             console.log("exit");
             loveSocket.end();
             server.close();
         }
-        else if (d[0] == "3"){
-            let ammoLeft = d.slice(1, d.length)
+        // else if (split[0] == "player"){
+        //   let id = split[1]
+        //
+        // }
+        else if (split[0] == 'ammo'){
+            let id = split[1]
+            let ammoLeft = split[2]
             // TODO: identify player numbers
-            playerToSocket[1].emit('ammo', {ammoLeft: ammoLeft})
+            playerToSocket[id].emit('ammo', {ammoLeft: ammoLeft})
         }
-        else if (d[0] == "2"){
-            let healthLeft = d.slice(1, d.length)
-            playerToSocket[1].emit('health', {healthLeft: healthLeft})
+        else if (split[0] == "health"){
+            let id = split[1]
+            let healthLeft = split[2]
+            // TODO: identify player numbers
+            playerToSocket[id].emit('health', {healthLeft: healthLeft})
+        } else if (split[0] == "color"){
+            let id = split[1]
+            let color = split[2]
+            playerToSocket[id].emit('color', {color: color})
         }
 
     });
 });
+
+
+loveServer.listen(5000, 'localhost')
 
 let io = require('socket.io')(server);
 
@@ -67,8 +85,6 @@ server.listen(app.get('port'), function(){
     console.log('Project XXX working on port: ' + app.get('port'));
 })
 
-loveServer.listen(5000, 'localhost')
-
 //bang, zap, boom, jump
 io.on('connection', function (socket) {
   numPlayers++;
@@ -77,9 +93,10 @@ io.on('connection', function (socket) {
   //TODO: get all players to join rooms
   socket.join('playerRoom');
   console.log('client socket connected')
+  loveSocket.write("player " + numPlayers)
+  loveSocket.pipe(loveSocket)
   socket.on('sent word', function(data){
     // TODO: still have to check if word is a command and send it to game engine
     console.log(data)
   })
 });
-

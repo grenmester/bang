@@ -1,4 +1,5 @@
 import pygame
+import socket
 
 class World():
     """
@@ -11,10 +12,18 @@ class World():
         self.bullets = pygame.sprite.Group()
         self.platforms = pygame.sprite.Group()
         self.screen = pygame.display.set_mode([width,height])
-
         self.players.add(*players)
         self.bullets.add(*bullets)
         self.platforms.add(*platforms)
+        self.clientsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.clientsocket.connect(('localhost', 5000))
+        self.clientsocket.settimeout(.01)
+        message = 'hi to node from python'
+        self.clientsocket.send(message.encode('utf-8'))
+
+    def endGame(self):
+        msg = 'end'
+        self.clientsocket.send(msg.encode('utf-8'))
 
     def add_players(self,players):
         """
