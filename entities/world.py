@@ -20,6 +20,7 @@ class World():
         self.clientsocket.settimeout(.01)
         message = 'hi to node from python'
         self.clientsocket.send(message.encode('utf-8'))
+        self.playerIds = {" ":True}
 
     def endGame(self):
         msg = 'end'
@@ -30,6 +31,8 @@ class World():
         Expects a list of players
         """
         self.players.add(*players)
+        for player in players:
+            self.playerIds[player.id] = True
 
     def add_bullets(self,bullets):
         self.bullets.add(*bullets)

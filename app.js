@@ -39,6 +39,27 @@ let loveServer = net.createServer(function(socket) {
         console.log("Connected to LOVE2D");
     });
 
+        //bang, zap, boom, jump
+    io.on('connection', function (socket) {
+      numPlayers++;
+      console.log(Object.keys(playerToSocket))
+      setTimeout(function(){
+        loveSocket.write("player " + numPlayers)
+        // loveSocket.pipe(loveSocket)
+        console.log('client socket connected')
+      }, 100) 
+      playerToSocket[numPlayers] = socket;
+      socketToPlayer[socket] = numPlayers;
+      //TODO: get all players to join rooms
+      socket.join('playerRoom');
+
+      
+      socket.on('sent word', function(data){
+        // TODO: still have to check if word is a command and send it to game engine
+        console.log(data)
+      })
+    });
+
     loveSocket.on("data", function (d) {
         d = d.toString()
         console.log(d)
@@ -50,10 +71,6 @@ let loveServer = net.createServer(function(socket) {
             loveSocket.end();
             server.close();
         }
-        // else if (split[0] == "player"){
-        //   let id = split[1]
-        //
-        // }
         else if (split[0] == 'ammo'){
             let id = split[1]
             let ammoLeft = split[2]
@@ -84,19 +101,3 @@ server.listen(app.get('port'), function(){
     //app.get('name') just gets name-value pair
     console.log('Project XXX working on port: ' + app.get('port'));
 })
-
-//bang, zap, boom, jump
-io.on('connection', function (socket) {
-  numPlayers++;
-  playerToSocket[numPlayers] = socket;
-  socketToPlayer[socket] = numPlayers;
-  //TODO: get all players to join rooms
-  socket.join('playerRoom');
-  console.log('client socket connected')
-  loveSocket.write("player " + numPlayers)
-  loveSocket.pipe(loveSocket)
-  socket.on('sent word', function(data){
-    // TODO: still have to check if word is a command and send it to game engine
-    console.log(data)
-  })
-});

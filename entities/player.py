@@ -12,7 +12,7 @@ class Player(Entity):
     """
     Player class
     """
-    def __init__(self,x,y,speed,dy,width,height,world,hp=HP,gravity=GRAVITY,direction = 1):
+    def __init__(self,x,y,speed,dy,width,height,world,hp=HP,gravity=GRAVITY,direction = 1,  playerId = None):
         # dx is speed (there is directionality to movement for the player)
         super().__init__(x,y,speed,dy,width,height,world,color=(255,0,0))
         global NUM_PLAYERS
@@ -27,7 +27,10 @@ class Player(Entity):
         self.direction = direction
         self.dropping = False
         self.alive = True
-        self.id = NUM_PLAYERS
+        if playerId:
+            self.id = playerId
+        else:
+            self.id = NUM_PLAYERS
         # self.world.clientsocket.send(("player " + str(self.id)).encode("utf-8"))
 
     def sendColor(self):
