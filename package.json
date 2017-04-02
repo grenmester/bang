@@ -1,10 +1,19 @@
 {
-  "name": "projectxxx",
+  "name": "bang",
   "version": "1.0.0",
-  "description": "",
+  "description": "Simple Hello World Node.js sample for Google App Engine",
   "main": "app.js",
   "scripts": {
+    "start": "node app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "engines": {
+    "node": ">=4.3.2"
+  },
+  "dependencies": {
+    "express": "4.14.1",
+    "hogan-express": "0.5.2",
+    "socket.io": "1.7.3"
   },
   "author": "",
   "license": "ISC"
