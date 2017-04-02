@@ -1,3 +1,5 @@
 *.psd
 *__pycache__
 *.DS_Store
+*.swo
+*.swp
