@@ -1,5 +1,5 @@
 import pygame
-from socketIO_client import SocketIO, LoggingNamespace
+#from socketIO_client import SocketIO, LoggingNamespace
 
 class World():
     """
@@ -23,8 +23,8 @@ class World():
         self.players.add(*players)
         self.bullets.add(*bullets)
         self.platforms.add(*platforms)
-        self.clientsocket = SocketIO('localhost', 5001, LoggingNamespace)
-        self.clientsocket.emit("connected", {"data": "Python socket connected"})
+        #self.clientsocket = SocketIO('localhost', 5001, LoggingNamespace)
+        #self.clientsocket.emit("connected", {"data": "Python socket connected"})
         self.playerIds = {" ":True}
 
     #TODO

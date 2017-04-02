@@ -1,5 +1,5 @@
 import pygame
-import socket
+#import socket
 
 from entities.world import World
 from entities.player import Player
@@ -25,6 +25,9 @@ def main():
     platform5 = Platform(world.width//2 + 100 ,height - 400,2,0,200,20,world, True, True, world.width//2, world.width)
     world.add_platforms([ground,platform1, platform2, platform3, platform4, platform5])
 
+    player = Player(width//2, height//2,SPEED,0,32,32,world,playerId=1, weapon='bazooka', image_file='assets/char1.png')
+    world.add_players([player])
+
     pygame.init()
     pygame.display.set_caption('Bang!')
 
@@ -37,37 +40,37 @@ def main():
             if event.type == pygame.QUIT:
                 done = True
             answer = []
-            try:
-                answer = world.clientsocket.recv(4096).decode("utf-8")
-                command = answer.split(',')
-                print(command)
-            except Exception as e:
-                pass
-            if answer:
-                if command[0] == "player" and command[1][0] not in world.playerIds:
-                    print(world.playerIds.keys())
-                    player = Player(width//2, height//2,SPEED,0,32,32,world, playerId =  command[1][0])
-                    world.add_players([player])
-                    world.clientsocket.send(("player " + str(player.id)).encode("utf-8"))
-                    print("new player added")
-                if command[0] == "command" and command[1] in world.playerIds:
-                    print(command)
-                    for word in command[2:]:
-                        if word in commands:
+            #try:
+            #    answer = world.clientsocket.recv(4096).decode("utf-8")
+            #    command = answer.split(',')
+            #    print(command)
+            #except Exception as e:
+            #    pass
+            #if answer:
+            #    command[0] == "player" and command[1][0] not in world.playerIds:
+            #        print(world.playerIds.keys())
+            #        player = Player(width//2, height//2,SPEED,0,32,32,world, playerId =  command[1][0])
+            #        world.add_players([player])
+            #        #world.clientsocket.send(("player " + str(player.id)).encode("utf-8"))
+            #        print("new player added")
+            #    if command[0] == "command" and command[1] in world.playerIds:
+            #        print(command)
+            #        for word in command[2:]:
+            #            if word in commands:
 
-                            playerId = command[1]
-                            player = world.playerIds[playerId]
-                            if word == "jump":
-                                player.jump()
-                            if word == "bang":
-                                player.shoot()
-                            if word == "drop":
-                                player.drop()
-                            if word == "turn":
-                                if player.direction == 1:
-                                    player.move_left()
-                                else:
-                                    player.move_right()
+            #                playerId = command[1]
+            #                player = world.playerIds[playerId]
+            #                if word == "jump":
+            #                    player.jump()
+            #                if word == "bang":
+            #                    player.shoot()
+            #                if word == "drop":
+            #                    player.drop()
+            #                if word == "turn":
+            #                    if player.direction == 1:
+            #                        player.move_left()
+            #                    else:
+            #                        player.move_right()
 
                             #world.playerIds[command[1][0]].jump()
 
@@ -84,7 +87,7 @@ def main():
                 if event.key == pygame.K_DOWN:
                     player.drop()
                 if event.key == pygame.K_RSHIFT:
-                    player.restore_ammo()
+                    player.reload()
                 # if event.key == pygame.K_a:
                 #     player2.move_left()
                 # if event.key == pygame.K_d:

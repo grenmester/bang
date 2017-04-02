@@ -15,7 +15,7 @@ class Player(Entity):
     """
     Player class
     """
-    def __init__(self,x,y,speed,dy,width,height,world,weapon='revolver',hp=HP,gravity=GRAVITY,direction = 1,image_file=None):
+    def __init__(self,x,y,speed,dy,width,height,world,weapon='revolver',hp=HP,gravity=GRAVITY,direction = 1,image_file=None,playerId=1):
         # dx is speed (there is directionality to movement for the player)
         super().__init__(x,y,speed,dy,width,height,world,color=(255,0,0),image_file=image_file)
         global NUM_PLAYERS
@@ -242,4 +242,5 @@ class Player(Entity):
             ammo = self.max_ammo
         # add ammo but don't exceed the max
         self.ammo_count += ammo
-        self.ammmo_count = min(self.ammo_count,self.max_ammo)
+        if self.ammo_count > self.max_ammo:
+            self.ammo_count = self.max_ammo
