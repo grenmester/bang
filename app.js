@@ -30,11 +30,9 @@ app.set('host', config.host);
 //In javascript, it is perfectly valid return a value, in this case - an object, but not initialize it
 require('./routes/routes.js')(express, app);
 
-let socket2;
 let server2 = require('http').createServer(app);
 let io2 = require('socket.io')(server2)
 io2.on('connection', function(socket){
-  socket2 = socket
   socket.on('color', function(data){
     console.log(data)
   })
@@ -57,10 +55,7 @@ io2.on('connection', function(socket){
   socket.on("connected", function(data){
     console.log(data["data"])
   })
-  socket.on('test', function(data){
-    console.log(data)
-    socket.emit('test2', {2:2})
-  })
+
 })
 server2.listen('5001', function(){
   console.log('server 2 listening on port 5001')
@@ -77,17 +72,14 @@ server.listen(app.get('port'), function(){
 })
 
 io.on('connection', function (socket) {
-  let socket2 = socket
   numPlayers++;
-  console.log(Object.keys(playerToSocket))
   let string1 = JSON.stringify({"id": numPlayers})
-  console.log(string1)
-  fs.appendFile('addPlayer.txt', string1, function(err){
+  string1 += '\n'
+  console.log("string1 " + string1)
+  fs.appendFile('input.txt', string1, function(err){
     console.error(err)
   })
-  socket2.emit("add-player", {'id': numPlayers})
-  playerToSocket[numPlayers] = socket;
-  socketToPlayer[socket] = numPlayers;
+  
   //TODO: get all players to join rooms
   //socket.join('playerRoom');
 
@@ -104,11 +96,10 @@ io.on('connection', function (socket) {
     console.log("commands " + commands)
     if (commands.length > 0){
       let string2 = JSON.stringify({"id": data['id'], "commands": commands})
-
-      fs.appendFile('command.txt', string2, function(err){
+      string2 += '\n'
+      fs.appendFile('input.txt', string2, function(err){
         console.error(err)
       })
-      socket2.emit("command", {'id':id, 'commands': commands})
     }
 
   })
