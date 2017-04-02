@@ -8,14 +8,14 @@ from entities.platform import Platform
 commands = ["jump", "bang", "drop", "turn"]
 
 
-SPEED = 2
+SPEED = 10
 
 def main():
 
 
 
     # socket stuff end
-    width, height = 700, 500
+    width, height = 1200, 600
     world = World(width,height)
     ground = Platform(0,height - 100,0,0,width,100,world,False,False)
     platform1 = Platform(100,height - 200,2,0,200,20,world, True, True, 0, world.width//2)
@@ -104,7 +104,7 @@ def main():
 
         world.update()
         world.draw()
-        clock.tick(40)
+        clock.tick(45)
         pygame.display.flip()
 
 if __name__ == '__main__':

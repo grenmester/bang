@@ -4,7 +4,7 @@ from entities.entity import Entity
 class Platform(Entity):
     # if you want moving platforms, specify here minimum and maximum x and y values
     def __init__(self,x,y,dx,dy,width,height,world,passthrough=True,dropdown=True, min_x = 0, max_x = 700,image_file=None):
-        super().__init__(x,y,dx,dy,width,height,world,color=(255,0,255),image_file=image_file)
+        super().__init__(x,y,dx,dy,width,height,world,color=(102,51,0),image_file=image_file)
         self.type = 'platform'
         self.passthrough = passthrough
         self.dropdown = dropdown

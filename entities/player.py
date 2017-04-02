@@ -2,14 +2,14 @@ import pygame, os
 from entities.entity import Entity
 from entities.bullet import Bullet
 
-GRAVITY = 1
+GRAVITY = 5
 HP = 5
 RESPAWN_TICKS = 5
 NUM_PLAYERS = 0
 
-WEAPONS = {'revolver':{'damage': 1, 'max_ammo': 6, 'speed': 4, 'file_name': 'assets/revolver.png', 'bullet_file_name': 'assets/bullet.png'},
-            'bazooka':{'damage': 2, 'max_ammo': 2, 'speed': 3.5, 'file_name': 'assets/bazooka.png', 'bullet_file_name': 'assets/rocket.png'},
-            'laser':{'damage': 1, 'max_ammo': 3, 'speed': 5, 'file_name': 'assets/laser_rifle.png', 'bullet_file_name': 'assets/laser.png'}}
+WEAPONS = {'revolver':{'damage': 1, 'max_ammo': 6, 'speed': 13, 'file_name': 'assets/revolver.png', 'bullet_file_name': 'assets/bullet.png'},
+            'bazooka':{'damage': 2, 'max_ammo': 2, 'speed': 11, 'file_name': 'assets/bazooka.png', 'bullet_file_name': 'assets/rocket.png'},
+            'laser':{'damage': 1, 'max_ammo': 3, 'speed': 16, 'file_name': 'assets/laser_rifle.png', 'bullet_file_name': 'assets/laser.png'}}
 
 class Player(Entity):
     """
@@ -69,11 +69,19 @@ class Player(Entity):
             if not platforms_hit:
                 self.dropping = False
         else:
-            self.rect.x += self.speed * self.direction
             # first check for collisions in moving without wrapping
             platforms_hit = pygame.sprite.spritecollide(self, self.world.platforms, False)
             passthrough_platforms = [x for x in platforms_hit if x.passthrough]
             hard_platforms = [x for x in platforms_hit if not x.passthrough]
+
+            # move in the x direction
+            self.rect.y += 1
+            entities_hit = pygame.sprite.spritecollide(self, self.world.platforms, False)
+            self.rect.x += self.speed * self.direction
+            if not self.dropping and entities_hit != [] and self.dy > 0:
+                self.rect.x += entities_hit[0].dx * 4
+            self.rect.y -= 1
+
             if hard_platforms and not passthrough_platforms:
                 # if we're moving left
                 self.resolve_x_platform_collision(hard_platforms)
@@ -127,15 +135,13 @@ class Player(Entity):
 
     def resolve_y_platform_collision(self, platforms_list):
         if self.dy < 0:
-
             # push the player to the bottom edge of the rightmost entitiy
             self.rect.y = max(map(lambda s: s.rect.bottom,platforms_list))
             # if you collide, set dy to 0
             self.dy = 0
 
-        # if we're moving right
+        # if we're moving down
         elif self.dy > 0:
-
             # push the player to the top edge of the leftmost entity
             self.rect.y = min(map(lambda s: s.rect.top,platforms_list))-self.rect.height
             # if you collide, set dy to 0
@@ -188,7 +194,7 @@ class Player(Entity):
         # if you are touching at least one platform, jump
         self.rect.y-=1
         if entities_hit:
-            self.dy = -15
+            self.dy = -32
 
     def drop(self):
         self.rect.y +=1

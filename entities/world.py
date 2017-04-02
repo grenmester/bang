@@ -55,7 +55,7 @@ class World():
         """
         Draw all entities
         """
-        self.screen.fill((0,0,255))
+        self.screen.fill((102,178,255))
         self.platforms.draw(self.screen)
         self.players.draw(self.screen)
         self.bullets.draw(self.screen)

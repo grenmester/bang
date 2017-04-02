@@ -22,10 +22,10 @@ class Bullet(Entity):
         # check for player collisions
         players_hit = pygame.sprite.spritecollide(self, self.world.players, False)
         if players_hit:
-            self.kill()
             # damage all players if you intersect instead of undefined behavior
             for player in players_hit:
                 if player != self.player:
+                    self.kill()
                     opponent_killed = player.damage(self.damage)
                     if opponent_killed:
                         self.player.reload()
