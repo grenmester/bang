@@ -95,33 +95,28 @@ def main():
                 if event.key == pygame.K_RSHIFT:
                     player.reload()
 
-                # CPU
-                if event.key == pygame.K_a:
-                    cpu.move_left()
-                if event.key == pygame.K_d:
-                    cpu.move_right()
-                if event.key == pygame.K_w:
+            #if pygame.KEYDOWN or not pygame.KEYDOWN:
+            #    with open('input.txt', 'r') as input_command:
+            #        # read the last line
+            #        command = input_command.readlines()[-1]
+            #        print(command)
+
+            #        if "jump" in command:
+            #            player.jump()
+            #            print("jumped")
+
+                rand = random.randint(0,99)
+                if rand in range(1,15):
+                    cpu.turn()
+                if rand in range(21,35):
                     cpu.jump()
-                if event.key == pygame.K_s:
+                if rand in range(41,60):
                     cpu.drop()
-                if event.key == pygame.K_q:
+                if rand in range(61,80) or not cpu.alive:
                     cpu.shoot()
                     cpu.attempt_respawn()
-                if event.key == pygame.K_r:
+                if rand in range(81,100):
                     cpu.reload()
-
-            rand = random.randint(0,99)
-            if rand in range(1,15):
-                cpu.turn()
-            if rand in range(21,35):
-                cpu.jump()
-            if rand in range(41,60):
-                cpu.drop()
-            if rand in range(61,80) or not cpu.alive:
-                cpu.shoot()
-                cpu.attempt_respawn()
-            if rand in range(81,100):
-                cpu.reload()
 
         world.update()
         world.draw()
