@@ -4,7 +4,6 @@ let path = require('path');
 let config = require('./config/config.js');
 let net = require('net');
 let app = express();
-let loveSocket;
 let numPlayers = 0;
 let playerToSocket = {};
 let socketToPlayer = {};
@@ -29,47 +28,6 @@ app.set('host', config.host);
 //module = module.exports = {}
 //In javascript, it is perfectly valid return a value, in this case - an object, but not initialize it
 require('./routes/routes.js')(express, app);
-
-let loveServer = net.createServer(function(socket) {
-    loveSocket = socket;
-    loveSocket.on("connect", function () {
-        // not appearing
-        console.log("Connected to LOVE2D");
-    });
-
-        //bang, zap, boom, jump
-
-    loveSocket.on("data", function (d) {
-        d = d.toString()
-        console.log(d)
-        let split = d.split(" ")
-        loveSocket.write('hi to python from node')
-        loveSocket.pipe(loveSocket)
-        if(split[0] == "end") {
-            console.log("exit");
-            loveSocket.end();
-            server.close();
-        }
-        else if (split[0] == 'ammo'){
-            let id = split[1]
-            let ammoLeft = split[2]
-            // TODO: identify player numbers
-            playerToSocket[id].emit('ammo', {ammoLeft: ammoLeft})
-        }
-        else if (split[0] == "health"){
-            let id = split[1]
-            let healthLeft = split[2]
-            // TODO: identify player numbers
-            playerToSocket[id].emit('health', {healthLeft: healthLeft})
-        } else if (split[0] == "color"){
-            let id = split[1]
-            let color = split[2]
-            playerToSocket[id].emit('color', {color: color})
-        }
-
-    });
-});
-loveServer.listen(5000, 'localhost')
 
 let socket2;
 let server2 = require('http').createServer(app);

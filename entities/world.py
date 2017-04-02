@@ -2,6 +2,9 @@ import pygame
 from socketIO_client import SocketIO, LoggingNamespace
 from entities.player import Player
 
+
+SPEED = 2
+
 class World():
     """
     World class
@@ -35,17 +38,19 @@ class World():
     #     self.clientsocket.emit(msg.encode('utf-8'))
 
     def command_response(self, *args):
+        print(args)
         legal_commands = {"jump": Player.jump, "bang":Player.shoot, "drop":Player.drop, "turn":Player.turn}
         data = args[0]
         playerId = data["id"]
         command_words = data["commands"]
         for command in command_words:
-            if command is in legal_commands:
+            if command in legal_commands:
                 print("Player " + playerId + "is trying to " + command)
                 self.playerIds[playerId].legal_commands[command]()
 
     def add_players_wrapper(self, *args):
-        self.add_players(args["id"])
+        player = player = Player(self.width//2, self.height//2,SPEED,0,32,32,self, playerId =  args[0]["id"])
+        self.add_players([player])
 
     def add_players(self,players):
         """

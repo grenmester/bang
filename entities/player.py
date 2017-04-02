@@ -15,7 +15,7 @@ class Player(Entity):
     """
     Player class
     """
-    def __init__(self,x,y,speed,dy,width,height,world,weapon='revolver',hp=HP,gravity=GRAVITY,direction = 1,image_file=None):
+    def __init__(self,x,y,speed,dy,width,height,world, playerId, weapon='revolver',hp=HP,gravity=GRAVITY,direction = 1,image_file=None):
         # dx is speed (there is directionality to movement for the player)
         super().__init__(x,y,speed,dy,width,height,world,color=(255,0,0),image_file=image_file)
         global NUM_PLAYERS
@@ -31,10 +31,7 @@ class Player(Entity):
         self.direction = direction
         self.dropping = False
         self.alive = True
-        if playerId:
-            self.id = playerId
-        else:
-            self.id = NUM_PLAYERS
+        self.id = playerId
         # self.world.clientsocket.send(("player " + str(self.id)).encode("utf-8"))
 
     def sendColor(self):

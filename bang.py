@@ -7,8 +7,6 @@ from entities.platform import Platform
 # import cProfile as profile
 
 
-SPEED = 2
-
 # def on_bye_response(*args):
 #     print(args)
 
@@ -40,7 +38,7 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 done = True
-            world.wait(seconds=.05)
+            world.clientsocket.wait(seconds=.01)
 
             # if answer:
             #     if command[0] == "player" and command[1][0] not in world.playerIds:
