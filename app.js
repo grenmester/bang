@@ -106,6 +106,21 @@ let loveServer = net.createServer(function(socket) {
 
 loveServer.listen(5000, 'localhost')
 
+let server2 = require('http').createServer(app);
+let io2 = require('socket.io')(server2)
+io2.on('connection', function(socket){
+  socket.on('hi-event', function(data){
+    console.log(data)
+    socket.emit('aaa', {2:2})
+  })
+  socket.on("connected", function(data){
+    console.log(data["data"])
+  })
+})
+server2.listen('5001', function(){
+  console.log('server 2 listening on port 5001')
+})
+
 let io = require('socket.io')(server);
 
 //set our app listen on the port we specify

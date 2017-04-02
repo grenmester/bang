@@ -38,16 +38,16 @@ class Player(Entity):
         # self.world.clientsocket.send(("player " + str(self.id)).encode("utf-8"))
 
     def sendColor(self):
-        msg = 'color ' + str(self.id) + ' ' + str(self.color)
-        self.world.clientsocket.send(msg.encode('utf-8'))
+        #msg = 'color ' + str(self.id) + ' ' + str(self.color)
+        self.world.clientsocket.emit('color', {'id': self.id, 'color': self.color})
 
     def sendHealth(self):
-        msg = 'health ' + str(self.id) + ' ' + str(max(0, self.hp))
-        self.world.clientsocket.send(msg.encode('utf-8'))
+        #msg = 'health ' + str(self.id) + ' ' + str(max(0, self.hp))
+        self.world.clientsocket.emit('health', {'id': self.id, 'health': self.hp})
 
     def sendAmmo(self):
-        msg = 'ammo ' + str(self.id) + ' ' + str(max(0, self.ammo_count))
-        self.world.clientsocket.send(msg.encode('utf-8'))
+        #msg = 'ammo ' + str(self.id) + ' ' + str(max(0, self.ammo_count))
+        self.world.clientsocket.emit('ammo', {'id': self.id, 'ammo': self.ammo_count})
 
     def update(self):
         """

@@ -4,18 +4,19 @@ import socket
 from entities.world import World
 from entities.player import Player
 from entities.platform import Platform
-import cProfile as profile
+# import cProfile as profile
 commands = ["jump", "bang", "drop", "turn"]
 
 
 SPEED = 2
 
 def main():
+
+
+
     # socket stuff end
     width, height = 700, 500
     world = World(width,height)
-    # answer = world.clientsocket.recv(4096)
-    # print(answer)
     ground = Platform(0,height - 100,0,0,width,100,world,False,False)
     platform1 = Platform(100,height - 200,2,0,200,20,world, True, True, 0, world.width//2)
     platform2 = Platform(world.width//2 + 100 ,height - 200,2,0,200,20,world, True, True, world.width//2, world.width)
