@@ -7,7 +7,7 @@ let app = express();
 let numPlayers = 0;
 let playerToSocket = {};
 let socketToPlayer = {};
-let commandSet = new Set(['jump', 'bang', 'turn', 'drop', 'reload', 'rip'])
+let commandSet = new Set(['jump', 'bang', 'turn', 'drop', 'reload', 'rip', 'Bang', 'Jump','Turn','Drop','Reload','Rip'])
 let fs = require('fs')
 //In this case we're running the app from Users/Documents/Programming/Node Starter, so that's the value of __dirname
 //Now we tell the app to append /views to that path

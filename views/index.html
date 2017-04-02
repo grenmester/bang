@@ -83,11 +83,12 @@
   }
 </style>
 <h1 class="center" id="headline">Bang</h1>
-<p id="player-info">Health: 3, Ammo: 10</p>
-<img id="hearts" src="../images/hearts5.png">
+<!--
+<p visibility="hidden" id="player-info">Health: 3, Ammo: 10</p>
+<img visibility="hidden" id="hearts" src="../images/hearts5.png">
 <br>
-<img id="bullets" src="../images/bullets6.png">
-
+<img visibility="hidden" id="bullets" src="../images/bullets6.png">
+-->
 <div id="info">
   <p id="info_start">Click on the microphone icon and begin speaking.</p>
   <p id="info_speak_now">Speak now.</p>
@@ -122,8 +123,10 @@
     <select id="select_dialect"></select>
   </div>
 </div>
+<!--
 <button id="shoot" onclick="shoot()">Shoot</button>
 <button id="die" onclick="die()">Die</button>
+-->
 <script>
 var health = 5
 var maxHealth = health

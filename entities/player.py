@@ -7,9 +7,9 @@ HP = 5
 RESPAWN_TICKS = 5
 NUM_PLAYERS = 0
 
-WEAPONS = {'revolver':{'damage': 1, 'max_ammo': 6, 'speed': 13, 'file_name': 'assets/revolver.png', 'bullet_file_name': 'assets/bullet.png'},
-            'bazooka':{'damage': 2, 'max_ammo': 2, 'speed': 11, 'file_name': 'assets/bazooka.png', 'bullet_file_name': 'assets/rocket.png'},
-            'laser':{'damage': 1, 'max_ammo': 3, 'speed': 16, 'file_name': 'assets/laser_rifle.png', 'bullet_file_name': 'assets/laser.png'}}
+WEAPONS = {'revolver':{'damage': 1, 'max_ammo': 12, 'speed': 13, 'file_name': 'assets/revolver.png', 'bullet_file_name': 'assets/bullet.png'},
+            'bazooka':{'damage': 2, 'max_ammo': 6, 'speed': 11, 'file_name': 'assets/bazooka.png', 'bullet_file_name': 'assets/rocket.png'},
+            'laser':{'damage': 1, 'max_ammo': 8, 'speed': 16, 'file_name': 'assets/laser_rifle.png', 'bullet_file_name': 'assets/laser.png'}}
 
 class Player(Entity):
     """

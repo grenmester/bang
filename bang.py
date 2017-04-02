@@ -7,9 +7,9 @@ from entities.platform import Platform
 from entities.healthbar import Healthbar
 # import cProfile as profile
 commands = ["jump", "bang", "drop", "turn"]
-bot = False
+bot = True
 
-SPEED = 10
+SPEED = 4
 global max_command_index
 max_command_index = 0
 
@@ -19,15 +19,17 @@ def main():
     width, height = 1200, 600
     world = World(width,height)
     ground = Platform(0,height - 100,0,0,width,100,world,False,False)
-    platform1 = Platform(100,height - 200,2,0,200,20,world, True, True, 0, world.width//2)
-    platform2 = Platform(world.width//2 + 100 ,height - 200,2,0,200,20,world, True, True, world.width//2, world.width)
-    platform3 = Platform(world.width//2 - 250, height - 300, 0, 0, 500, 20, world, True, True)
-    platform4 = Platform(100,height - 400,2,0,200,20,world, True, True, 0, world.width//2)
-    platform5 = Platform(world.width//2 + 100 ,height - 400,2,0,200,20,world, True, True, world.width//2, world.width)
-    world.add_platforms([ground,platform1, platform2, platform3, platform4, platform5])
+    #platform1 = Platform(100,height - 200,2,0,200,20,world, True, True, 0, world.width//2)
+    #platform2 = Platform(world.width//2 + 100 ,height - 200,2,0,200,20,world, True, True, world.width//2, world.width)
+    platform3 = Platform(0, height - 300, 0, 0, world.width, 20, world, True, True)
+    #platform4 = Platform(100,height - 400,2,0,200,20,world, True, True, 0, world.width//2)
+    #platform5 = Platform(world.width//2 + 100 ,height - 400,2,0,200,20,world, True, True, world.width//2, world.width)
+    platform6 = Platform(0, height - 200, 0, 0, world.width, 20, world, True, True)
+    platform7 = Platform(0, height - 400, 0, 0, world.width, 20, world, True, True)
+    world.add_platforms([ground,platform3, platform6, platform7])
 
-    player = Player(width//2, height//2,SPEED,0,32,32,world,playerId=1, weapon=random.choice(['revolver','bazooka','laser']), image_file='assets/char1.png')
-    cpu = Player(width//2, height//2,SPEED,0,32,32,world,playerId=2, weapon=random.choice(['revolver','bazooka','laser']), image_file='assets/char2.png')
+    player = Player(width//2, height//2,SPEED,0,32,32,world,playerId=1, weapon=random.choice(['revolver']), image_file='assets/char1.png')
+    cpu = Player(width//2, height//2,SPEED,0,32,32,world,playerId=2, weapon=random.choice(['laser']), image_file='assets/char2.png')
     healthbar = Healthbar(width//2, height//2, 0, 0, 80, 16, world, player)
     healthbar2 = Healthbar(width//2, height//2, 0, 0, 80, 16, world, cpu)
     world.add_players([player, cpu])
@@ -123,7 +125,7 @@ def main():
             #print(input_command.readlines())
             if command_index > max_command_index:
                 command = lines[-1]
-                print(command)
+                command = command.lower()
                 max_command_index = command_index
             else:
                 command = ""
@@ -133,13 +135,13 @@ def main():
                 player.turn()
                 #input_command.write("blank")
             if "jump" in command:
-                print('HEHERHERHERHERH')
                 player.jump()
                 #input_command.write("blank")
             if "drop" in command:
                 player.drop()
                 #input_command.write("blank")
-            if "bang" in command:
+            if "bang" in command or "Bang" in command:
+                print("bang")
                 player.shoot()
                 player.attempt_respawn()
                 #input_command.write("blank")
@@ -151,16 +153,16 @@ def main():
 
         if bot:
             rand = random.randint(0,99)
-            if rand in range(1,10):
+            if rand in range(1,3):
                 cpu.turn()
-            if rand in range(21,30):
+            if rand in range(21,23):
                 cpu.jump()
-            if rand in range(41,60):
+            if rand in range(41,45):
                 cpu.drop()
             if rand in range(61,70) or not cpu.alive:
                 cpu.shoot()
                 cpu.attempt_respawn()
-            if rand in range(70,95):
+            if rand in range(70,85):
                 cpu.reload()
 
 
